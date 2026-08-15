@@ -292,14 +292,14 @@ label[data-testid="stWidgetLabel"] p,
 
 
 # ─────────────────────────────────────────────
-# Helper: Gemini API call (Dual-Layer: SDK + Direct REST API)
+# Helper: Gemini API call (REST API — reliable across all environments)
 # ─────────────────────────────────────────────
 def call_gemini(system_instruction: str, prompt: str, temperature: float, api_key: str, model: str = "gemini-2.0-flash") -> str:
     """
     Calls Google Gemini API using:
-    1. Official modern google-genai SDK
-    2. Direct HTTPS REST API fallback (guaranteed to work across all Python versions/environments)
-    With automatic model fallback (gemini-2.0-flash, gemini-1.5-flash, gemini-2.0-flash-lite, gemini-1.5-pro).
+    1. Official google-genai SDK via Chat.send_message (avoids AFC warning per SDK recommendation)
+    2. Direct HTTPS REST API fallback (zero dependency on SDK/grpcio — always works)
+    With automatic model fallback (gemini-2.0-flash → gemini-1.5-flash → gemini-2.0-flash-lite → gemini-1.5-pro).
     """
     import json
     import requests
@@ -313,7 +313,7 @@ def call_gemini(system_instruction: str, prompt: str, temperature: float, api_ke
     models_to_try = [m for m in candidate_models if not (m in seen or seen.add(m))]
     errors = []
 
-    # 1. Try google-genai SDK
+    # 1. Try google-genai SDK via Chat.send_message (recommended path — no AFC advisory)
     try:
         from google import genai
         from google.genai import types
@@ -321,16 +321,15 @@ def call_gemini(system_instruction: str, prompt: str, temperature: float, api_ke
         client = genai.Client(api_key=api_key)
         for m in models_to_try:
             try:
-                config = types.GenerateContentConfig(
-                    system_instruction=system_instruction,
-                    temperature=temperature,
-                    automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True)
-                )
-                response = client.models.generate_content(
+                # Using Chat.send_message as recommended by the SDK to avoid AFC warning
+                chat = client.chats.create(
                     model=m,
-                    contents=prompt,
-                    config=config
+                    config=types.GenerateContentConfig(
+                        system_instruction=system_instruction,
+                        temperature=temperature,
+                    )
                 )
+                response = chat.send_message(prompt)
                 if response and response.text:
                     return response.text.strip()
             except Exception as err:
