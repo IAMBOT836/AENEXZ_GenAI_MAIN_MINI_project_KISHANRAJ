@@ -419,11 +419,22 @@ with st.sidebar:
     """, unsafe_allow_html=True)
 
     st.markdown("### 🔑 API Configuration")
+    default_key = ""
+    try:
+        if "GEMINI_API_KEY" in st.secrets:
+            default_key = st.secrets["GEMINI_API_KEY"]
+        elif "GOOGLE_API_KEY" in st.secrets:
+            default_key = st.secrets["GOOGLE_API_KEY"]
+    except Exception:
+        pass
+    if not default_key:
+        default_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY", "")
+
     api_key = st.text_input(
         "Gemini API Key",
         type="password",
-        value=os.environ.get("GEMINI_API_KEY", ""),
-        placeholder="Enter your Gemini API Key...",
+        value=default_key,
+        placeholder="Enter your Gemini API Key (AIzaSy...)...",
         help="Get your free API key at https://aistudio.google.com/app/apikey",
     )
 
