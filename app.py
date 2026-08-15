@@ -292,13 +292,19 @@ label[data-testid="stWidgetLabel"] p,
 
 
 # ─────────────────────────────────────────────
-# Helper: Gemini API call
+# Helper: Gemini API call (Dual-Layer: SDK + Direct REST API)
 # ─────────────────────────────────────────────
 def call_gemini(system_instruction: str, prompt: str, temperature: float, api_key: str, model: str = "gemini-2.0-flash") -> str:
     """
-    Calls Google Gemini API using the official modern google-genai SDK
-    with automatic fallback across available models (gemini-2.0-flash, gemini-1.5-flash, etc.).
+    Calls Google Gemini API using:
+    1. Official modern google-genai SDK
+    2. Direct HTTPS REST API fallback (guaranteed to work across all Python versions/environments)
+    With automatic model fallback (gemini-2.0-flash, gemini-1.5-flash, gemini-2.0-flash-lite, gemini-1.5-pro).
     """
+    import json
+    import requests
+
+    api_key = api_key.strip() if api_key else ""
     if not api_key:
         raise ValueError("GEMINI_API_KEY is missing. Please enter it in the sidebar.")
 
@@ -307,6 +313,7 @@ def call_gemini(system_instruction: str, prompt: str, temperature: float, api_ke
     models_to_try = [m for m in candidate_models if not (m in seen or seen.add(m))]
     errors = []
 
+    # 1. Try google-genai SDK
     try:
         from google import genai
         from google.genai import types
@@ -326,12 +333,52 @@ def call_gemini(system_instruction: str, prompt: str, temperature: float, api_ke
                 if response and response.text:
                     return response.text.strip()
             except Exception as err:
-                errors.append(f"Model '{m}': {err}")
+                errors.append(f"SDK ({m}): {err}")
     except Exception as err:
-        errors.append(f"Gemini client initialization error: {err}")
+        errors.append(f"SDK Init: {err}")
+
+    # 2. Guaranteed Direct REST API Fallback (Zero dependency on SDK/grpcio)
+    for m in models_to_try:
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key}"
+            headers = {"Content-Type": "application/json"}
+            payload = {
+                "contents": [
+                    {
+                        "parts": [
+                            {"text": prompt}
+                        ]
+                    }
+                ],
+                "systemInstruction": {
+                    "parts": [
+                        {"text": system_instruction}
+                    ]
+                },
+                "generationConfig": {
+                    "temperature": temperature
+                }
+            }
+
+            resp = requests.post(url, headers=headers, data=json.dumps(payload), timeout=60)
+            if resp.status_code == 200:
+                data = resp.json()
+                candidates = data.get("candidates", [])
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if parts and "text" in parts[0]:
+                        return parts[0]["text"].strip()
+            else:
+                try:
+                    err_msg = resp.json().get("error", {}).get("message", resp.text)
+                except Exception:
+                    err_msg = resp.text
+                errors.append(f"REST API ({m} - HTTP {resp.status_code}): {err_msg}")
+        except Exception as err:
+            errors.append(f"REST API ({m}): {err}")
 
     raise RuntimeError(
-        "Failed to generate content via Gemini API:\n" + "\n".join(errors)
+        "Failed to generate content via Gemini API:\n" + "\n".join(errors[-4:])
     )
 
 

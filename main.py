@@ -45,10 +45,13 @@ def get_api_key() -> str:
 
 def call_gemini(system_instruction: str, prompt: str, temperature: float, model: str = "gemini-2.0-flash") -> str:
     """
-    Calls Google Gemini API using the official modern google-genai SDK
-    with automatic model fallback across supported models.
+    Calls Google Gemini API using official SDK or direct REST API with automatic model fallback.
     """
+    import json
+    import requests
+
     api_key = get_api_key()
+    api_key = api_key.strip() if api_key else ""
     if not api_key:
         raise ValueError("GEMINI_API_KEY is required to generate content.")
 
@@ -57,6 +60,7 @@ def call_gemini(system_instruction: str, prompt: str, temperature: float, model:
     models_to_try = [m for m in candidate_models if not (m in seen or seen.add(m))]
     errors = []
 
+    # 1. Try google-genai SDK
     try:
         from google import genai
         from google.genai import types
@@ -76,12 +80,39 @@ def call_gemini(system_instruction: str, prompt: str, temperature: float, model:
                 if response and response.text:
                     return response.text.strip()
             except Exception as err:
-                errors.append(f"Model '{m}': {err}")
+                errors.append(f"SDK ({m}): {err}")
     except Exception as err:
-        errors.append(f"Client init error: {err}")
+        errors.append(f"SDK Init: {err}")
+
+    # 2. Guaranteed REST API Fallback
+    for m in models_to_try:
+        try:
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key}"
+            headers = {"Content-Type": "application/json"}
+            payload = {
+                "contents": [{"parts": [{"text": prompt}]}],
+                "systemInstruction": {"parts": [{"text": system_instruction}]},
+                "generationConfig": {"temperature": temperature}
+            }
+            resp = requests.post(url, headers=headers, data=json.dumps(payload), timeout=60)
+            if resp.status_code == 200:
+                data = resp.json()
+                candidates = data.get("candidates", [])
+                if candidates:
+                    parts = candidates[0].get("content", {}).get("parts", [])
+                    if parts and "text" in parts[0]:
+                        return parts[0]["text"].strip()
+            else:
+                try:
+                    err_msg = resp.json().get("error", {}).get("message", resp.text)
+                except Exception:
+                    err_msg = resp.text
+                errors.append(f"REST API ({m} - HTTP {resp.status_code}): {err_msg}")
+        except Exception as err:
+            errors.append(f"REST API ({m}): {err}")
 
     raise RuntimeError(
-        "Failed to generate content via Gemini API:\n" + "\n".join(errors)
+        "Failed to generate content via Gemini API:\n" + "\n".join(errors[-4:])
     )
 
 
