@@ -324,6 +324,7 @@ def call_gemini(system_instruction: str, prompt: str, temperature: float, api_ke
                 config = types.GenerateContentConfig(
                     system_instruction=system_instruction,
                     temperature=temperature,
+                    automatic_function_calling=types.AutomaticFunctionCallingConfig(disable=True)
                 )
                 response = client.models.generate_content(
                     model=m,
