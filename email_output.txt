@@ -1,0 +1,24 @@
+===== EMAIL GENERATOR =====
+Recipient: HR Manager, TCS
+Purpose: Follow-up after interview
+Tone: professional
+
+Subject: Following Up: Interview for Software Engineer Position - [Your Name]
+
+Dear HR Manager,
+
+I hope this email finds you well.
+
+I am writing to follow up on my recent interview for the Software Engineer position at TCS. I thoroughly enjoyed speaking with the team and learning more about the innovative projects currently underway in your department.
+
+Our discussion further confirmed my strong interest in joining TCS. I am very enthusiastic about the opportunity to contribute my skills in software development and problem-solving to your team.
+
+Could you please provide any updates regarding the next steps in the hiring process? If there are any additional materials or references you need from my end, please feel free to let me know.
+
+Thank you once again for your time, consideration, and guidance throughout this process. I look forward to hearing from you soon.
+
+Warm regards,
+
+[Your Name]  
+[Your Contact Information]  
+[Your LinkedIn Profile]
