@@ -1,0 +1,73 @@
+# ┌──────────────────────────────────────────────────────────┐
+# │         SmartGen AI — Ping Monitor (Keep Alive)          │
+# │  Runs every 30 minutes via GitHub Actions Cron Scheduler │
+# │  Prevents Streamlit Cloud app from sleeping due to idle  │
+# └──────────────────────────────────────────────────────────┘
+
+name: 🏓 Ping Monitor — Keep App Alive
+
+on:
+  schedule:
+    # Runs every 30 minutes, 24/7
+    - cron: '*/30 * * * *'
+
+  # Allow manual trigger from GitHub Actions tab
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual ping'
+        required: false
+        default: 'Manual keep-alive trigger'
+
+jobs:
+  ping:
+    name: Ping SmartGen AI App
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: 📡 Ping Streamlit App (Health Check)
+        run: |
+          echo "🕐 Ping triggered at: $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "🎯 Target: ${{ secrets.APP_URL }}"
+
+          # Ping the app main page
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            --max-time 30 \
+            --retry 3 \
+            --retry-delay 5 \
+            "${{ secrets.APP_URL }}")
+
+          echo "📶 HTTP Status: $STATUS"
+
+          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+            echo "✅ App is ALIVE and responding! (HTTP $STATUS)"
+          else
+            echo "⚠️  App returned HTTP $STATUS — may be waking up, that's normal."
+            # Don't fail — Streamlit may return non-200 while waking
+          fi
+
+      - name: 📡 Ping Streamlit Health Endpoint
+        run: |
+          # Also ping the internal Streamlit health endpoint
+          HEALTH_URL="${{ secrets.APP_URL }}/_stcore/health"
+          echo "🏥 Health check URL: $HEALTH_URL"
+
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            --max-time 30 \
+            --retry 2 \
+            "$HEALTH_URL" || echo "000")
+
+          echo "🏥 Health endpoint status: $STATUS"
+          echo "✅ Ping cycle complete."
+
+      - name: 📊 Log Summary
+        run: |
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "  SmartGen AI — Ping Monitor Summary"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+          echo "  ⏰ Pinged at : $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          echo "  🔗 App URL  : ${{ secrets.APP_URL }}"
+          echo "  🔄 Schedule : Every 30 minutes"
+          echo "  📦 Repo     : ${{ github.repository }}"
+          echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
