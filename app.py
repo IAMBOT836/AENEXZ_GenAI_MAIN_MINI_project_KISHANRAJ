@@ -294,50 +294,71 @@ label[data-testid="stWidgetLabel"] p,
 # ─────────────────────────────────────────────
 # Helper: Gemini API call
 # ─────────────────────────────────────────────
-def call_gemini(system_instruction: str, prompt: str, temperature: float, api_key: str) -> str:
-    """Calls Google Gemini API. Tries modern google-genai SDK first, falls back to google-generativeai."""
+def call_gemini(system_instruction: str, prompt: str, temperature: float, api_key: str, model: str = "gemini-2.0-flash") -> str:
+    """
+    Calls Google Gemini API using modern google-genai SDK or legacy google-generativeai SDK
+    with automatic model fallback across supported models.
+    """
     if not api_key:
         raise ValueError("GEMINI_API_KEY is missing. Please enter it in the sidebar.")
 
-    # Try modern google-genai SDK first
+    candidate_models = [model, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.0-flash-lite", "gemini-1.5-pro"]
+    seen = set()
+    models_to_try = [m for m in candidate_models if not (m in seen or seen.add(m))]
+    errors = []
+
+    # 1. Try modern google-genai SDK first
     try:
         from google import genai
         from google.genai import types
 
         client = genai.Client(api_key=api_key)
-        config = types.GenerateContentConfig(
-            system_instruction=system_instruction,
-            temperature=temperature,
-        )
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
-            config=config
-        )
-        return response.text.strip()
-    except Exception as err_genai:
-        # Fallback to google-generativeai SDK
-        try:
-            import google.generativeai as genai_legacy
-            genai_legacy.configure(api_key=api_key)
-            model = genai_legacy.GenerativeModel(
-                model_name="gemini-1.5-flash",
-                system_instruction=system_instruction
-            )
-            response = model.generate_content(
-                prompt,
-                generation_config=genai_legacy.GenerationConfig(temperature=temperature)
-            )
-            return response.text.strip()
-        except Exception as err_legacy:
-            raise RuntimeError(
-                f"Failed to call Gemini API.\n"
-                f"google-genai error: {err_genai}\n"
-                f"google-generativeai error: {err_legacy}"
-            )
+        for m in models_to_try:
+            try:
+                config = types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    temperature=temperature,
+                )
+                response = client.models.generate_content(
+                    model=m,
+                    contents=prompt,
+                    config=config
+                )
+                if response and response.text:
+                    return response.text.strip()
+            except Exception as err:
+                errors.append(f"google-genai ({m}): {err}")
+    except Exception as err:
+        errors.append(f"google-genai init: {err}")
+
+    # 2. Fallback to google-generativeai SDK
+    try:
+        import google.generativeai as genai_legacy
+
+        genai_legacy.configure(api_key=api_key)
+        for m in models_to_try:
+            try:
+                legacy_model = genai_legacy.GenerativeModel(
+                    model_name=m,
+                    system_instruction=system_instruction
+                )
+                response = legacy_model.generate_content(
+                    prompt,
+                    generation_config=genai_legacy.GenerationConfig(temperature=temperature)
+                )
+                if response and response.text:
+                    return response.text.strip()
+            except Exception as err:
+                errors.append(f"google-generativeai ({m}): {err}")
+    except Exception as err:
+        errors.append(f"google-generativeai init: {err}")
+
+    raise RuntimeError(
+        "Failed to call Gemini API.\n" + "\n".join(errors[-4:])
+    )
 
 
-def generate_blog(topic: str, tone: str, word_count: int, api_key: str) -> str:
+def generate_blog(topic: str, tone: str, word_count: int, api_key: str, model: str = "gemini-2.0-flash") -> str:
     system_instruction = "You are an experienced blog writer who crafts engaging, insightful, and well-structured articles."
     prompt = f"""Write a blog post based on the following details:
 - Topic: "{topic}"
@@ -350,10 +371,10 @@ Formatting & Structure Guidelines:
 3. Body Sections: Write 2 to 3 distinct body sections with descriptive subheadings.
 4. Conclusion: Summarize main points with a memorable takeaway or call to action.
 """
-    return call_gemini(system_instruction, prompt, temperature=0.7, api_key=api_key)
+    return call_gemini(system_instruction, prompt, temperature=0.7, api_key=api_key, model=model)
 
 
-def generate_email(recipient: str, purpose: str, tone: str, api_key: str) -> str:
+def generate_email(recipient: str, purpose: str, tone: str, api_key: str, model: str = "gemini-2.0-flash") -> str:
     system_instruction = "You are a professional email writer who produces clear, polished, and effective emails."
     prompt = f"""Write an email based on the following details:
 - Recipient: {recipient}
@@ -366,7 +387,7 @@ Formatting & Structure Guidelines:
 3. Email Body: Concise, context-appropriate message addressing the purpose ({purpose}).
 4. Closing: Professional sign-off with placeholders for sender details.
 """
-    return call_gemini(system_instruction, prompt, temperature=0.3, api_key=api_key)
+    return call_gemini(system_instruction, prompt, temperature=0.3, api_key=api_key, model=model)
 
 
 # ─────────────────────────────────────────────
@@ -404,6 +425,13 @@ with st.sidebar:
         value=os.environ.get("GEMINI_API_KEY", ""),
         placeholder="Enter your Gemini API Key...",
         help="Get your free API key at https://aistudio.google.com/app/apikey",
+    )
+
+    model_choice = st.selectbox(
+        "Gemini Model",
+        options=["gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.0-flash-lite", "gemini-1.5-pro"],
+        index=0,
+        help="Model used for content generation. Default is gemini-2.0-flash.",
     )
 
     if api_key:
@@ -445,7 +473,7 @@ st.markdown("""
         your intelligent content co-pilot.
     </div>
     <div style="margin-top:1rem; display:flex; gap:0.6rem; flex-wrap:wrap;">
-        <span class="metric-chip">🤖 Gemini 2.5 Flash</span>
+        <span class="metric-chip">🤖 Gemini 2.0 Flash</span>
         <span class="metric-chip">📝 Blog Generator</span>
         <span class="metric-chip">📧 Email Writer</span>
         <span class="metric-chip">⚡ Real-time Generation</span>
@@ -515,7 +543,7 @@ with tab_blog:
                 with st.spinner("🤖 Gemini is crafting your blog post..."):
                     try:
                         start = time.time()
-                        blog_text = generate_blog(topic, tone, word_count, api_key)
+                        blog_text = generate_blog(topic, tone, word_count, api_key, model=model_choice)
                         elapsed = round(time.time() - start, 1)
 
                         header = f"===== BLOG GENERATOR =====\nTopic: \"{topic}\"\nTone: {tone}\nWord count: {word_count}\n\n"
@@ -626,7 +654,7 @@ with tab_email:
                 with st.spinner("🤖 Gemini is composing your email..."):
                     try:
                         start = time.time()
-                        email_text = generate_email(recipient, purpose, email_tone, api_key)
+                        email_text = generate_email(recipient, purpose, email_tone, api_key, model=model_choice)
                         elapsed = round(time.time() - start, 1)
 
                         header = f"===== EMAIL GENERATOR =====\nRecipient: {recipient}\nPurpose: {purpose}\nTone: {email_tone}\n\n"

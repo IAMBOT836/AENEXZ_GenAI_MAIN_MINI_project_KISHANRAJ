@@ -43,51 +43,69 @@ def get_api_key() -> str:
     return key
 
 
-def call_gemini(system_instruction: str, prompt: str, temperature: float) -> str:
+def call_gemini(system_instruction: str, prompt: str, temperature: float, model: str = "gemini-2.0-flash") -> str:
     """
-    Calls Google Gemini API using the new google-genai SDK or legacy google-generativeai SDK.
+    Calls Google Gemini API using the new google-genai SDK or legacy google-generativeai SDK
+    with automatic model fallback across supported models.
     """
     api_key = get_api_key()
     if not api_key:
         raise ValueError("GEMINI_API_KEY is required to generate content.")
 
-    # Try modern google-genai SDK first
+    candidate_models = [model, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.0-flash-lite", "gemini-1.5-pro"]
+    seen = set()
+    models_to_try = [m for m in candidate_models if not (m in seen or seen.add(m))]
+    errors = []
+
+    # 1. Try modern google-genai SDK first
     try:
         from google import genai
         from google.genai import types
 
         client = genai.Client(api_key=api_key)
-        config = types.GenerateContentConfig(
-            system_instruction=system_instruction,
-            temperature=temperature,
-        )
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents=prompt,
-            config=config
-        )
-        return response.text.strip()
-    except Exception as err_genai:
-        # Fallback to google-generativeai SDK
-        try:
-            import google.generativeai as genai_legacy
+        for m in models_to_try:
+            try:
+                config = types.GenerateContentConfig(
+                    system_instruction=system_instruction,
+                    temperature=temperature,
+                )
+                response = client.models.generate_content(
+                    model=m,
+                    contents=prompt,
+                    config=config
+                )
+                if response and response.text:
+                    return response.text.strip()
+            except Exception as err:
+                errors.append(f"google-genai ({m}): {err}")
+    except Exception as err:
+        errors.append(f"google-genai init: {err}")
 
-            genai_legacy.configure(api_key=api_key)
-            model = genai_legacy.GenerativeModel(
-                model_name="gemini-1.5-flash",
-                system_instruction=system_instruction
-            )
-            response = model.generate_content(
-                prompt,
-                generation_config=genai_legacy.GenerationConfig(temperature=temperature)
-            )
-            return response.text.strip()
-        except Exception as err_legacy:
-            raise RuntimeError(
-                f"Failed to generate content via Gemini API.\n"
-                f"google-genai error: {err_genai}\n"
-                f"google-generativeai error: {err_legacy}"
-            )
+    # 2. Fallback to google-generativeai SDK
+    try:
+        import google.generativeai as genai_legacy
+
+        genai_legacy.configure(api_key=api_key)
+        for m in models_to_try:
+            try:
+                legacy_model = genai_legacy.GenerativeModel(
+                    model_name=m,
+                    system_instruction=system_instruction
+                )
+                response = legacy_model.generate_content(
+                    prompt,
+                    generation_config=genai_legacy.GenerationConfig(temperature=temperature)
+                )
+                if response and response.text:
+                    return response.text.strip()
+            except Exception as err:
+                errors.append(f"google-generativeai ({m}): {err}")
+    except Exception as err:
+        errors.append(f"google-generativeai init: {err}")
+
+    raise RuntimeError(
+        "Failed to generate content via Gemini API.\nErrors encountered:\n" + "\n".join(errors[-4:])
+    )
 
 
 def generate_blog(topic: str, tone: str, word_count: int, save_file: str = "blog_output.txt") -> str:

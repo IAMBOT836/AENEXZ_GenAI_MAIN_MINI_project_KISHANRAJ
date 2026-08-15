@@ -202,7 +202,7 @@ Subject: Following Up: Interview for Software Engineer Position
 
 ## 🛠️ Tech Stack
 
-- **[Google Gemini API](https://ai.google.dev/)** — `gemini-2.5-flash` model
+- **[Google Gemini API](https://ai.google.dev/)** — `gemini-2.0-flash` model
 - **[Streamlit](https://streamlit.io/)** — Web UI framework
 - **[GitHub Actions](https://github.com/features/actions)** — Ping monitor automation
 - **Python 3.10+**
