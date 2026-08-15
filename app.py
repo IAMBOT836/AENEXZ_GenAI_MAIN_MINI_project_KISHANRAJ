@@ -13,7 +13,7 @@ import time
 # Page Configuration
 # ─────────────────────────────────────────────
 st.set_page_config(
-    page_title="SmartGen AI — Blog & Email Generator",
+    page_title="SmartGen AI — Blog, Email & Resume Builder",
     page_icon="✦",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -436,6 +436,52 @@ Formatting & Structure Guidelines:
     return call_gemini(system_instruction, prompt, temperature=0.3, api_key=api_key, model=model)
 
 
+def generate_resume(
+    name: str, job_title: str, email: str, phone: str, location: str,
+    summary: str, experience: str, education: str, skills: str,
+    projects: str, certifications: str, api_key: str, model: str = "gemini-3.5-flash"
+) -> str:
+    system_instruction = (
+        "You are an expert resume writer with 15+ years of experience crafting "
+        "ATS-optimised, professional resumes for top companies. You write with "
+        "impact — using strong action verbs, quantified achievements, and clean formatting."
+    )
+    prompt = f"""Build a polished, ATS-friendly professional resume using the details below.
+
+Candidate Details:
+- Full Name: {name}
+- Target Role: {job_title}
+- Email: {email}
+- Phone: {phone}
+- Location: {location}
+
+Professional Summary Input: {summary}
+
+Work Experience:
+{experience}
+
+Education:
+{education}
+
+Skills: {skills}
+
+Projects: {projects}
+
+Certifications: {certifications}
+
+Formatting Rules:
+1. Header — Name (large), contact line (email | phone | location).
+2. Professional Summary — 3-4 compelling sentences tailored to the target role.
+3. Work Experience — reverse-chronological, bullet points with strong action verbs and metrics.
+4. Education — degree, institution, year.
+5. Skills — grouped by category (Technical, Soft Skills, Tools).
+6. Projects — name, brief description, tech stack.
+7. Certifications — name, issuer, year.
+Output plain text only. Use ━━━ as section dividers. Keep it concise (1–2 pages).
+"""
+    return call_gemini(system_instruction, prompt, temperature=0.2, api_key=api_key, model=model)
+
+
 # ─────────────────────────────────────────────
 # Session State Init
 # ─────────────────────────────────────────────
@@ -443,6 +489,8 @@ if "blog_history" not in st.session_state:
     st.session_state.blog_history = []
 if "email_history" not in st.session_state:
     st.session_state.email_history = []
+if "resume_history" not in st.session_state:
+    st.session_state.resume_history = []
 if "total_generated" not in st.session_state:
     st.session_state.total_generated = 0
 
@@ -499,6 +547,7 @@ with st.sidebar:
     st.markdown(f"""
     <div class="sidebar-stat">📝 Blogs &nbsp;&nbsp; <strong>{len(st.session_state.blog_history)}</strong></div>
     <div class="sidebar-stat">📧 Emails &nbsp;&nbsp; <strong>{len(st.session_state.email_history)}</strong></div>
+    <div class="sidebar-stat">📄 Resumes &nbsp; <strong>{len(st.session_state.resume_history)}</strong></div>
     <div class="sidebar-stat">🎯 Total &nbsp;&nbsp;&nbsp; <strong>{st.session_state.total_generated}</strong></div>
     """, unsafe_allow_html=True)
 
@@ -531,6 +580,7 @@ st.markdown("""
         <span class="metric-chip">🤖 Gemini 3.5 Flash</span>
         <span class="metric-chip">📝 Blog Generator</span>
         <span class="metric-chip">📧 Email Writer</span>
+        <span class="metric-chip">📄 Resume Builder</span>
         <span class="metric-chip">⚡ Real-time</span>
         <span class="metric-chip">💾 Download</span>
     </div>
@@ -541,7 +591,12 @@ st.markdown("""
 # ─────────────────────────────────────────────
 # Main Tabs
 # ─────────────────────────────────────────────
-tab_blog, tab_email, tab_history = st.tabs(["📝  Blog Generator", "📧  Email Writer", "📚  History"])
+tab_blog, tab_email, tab_resume, tab_history = st.tabs([
+    "📝  Blog Generator",
+    "📧  Email Writer",
+    "📄  Resume Builder",
+    "📚  History",
+])
 
 
 # ══════════════════════════════════════════════
@@ -755,9 +810,237 @@ with tab_email:
 
 
 # ══════════════════════════════════════════════
-# TAB 3 — HISTORY
+# TAB 3 — RESUME BUILDER
+# ══════════════════════════════════════════════
+with tab_resume:
+    st.markdown('<div class="section-header">📄 Resume Builder — AI-Powered, ATS-Optimised</div>', unsafe_allow_html=True)
+
+    col_form, col_out = st.columns([1, 1], gap="large")
+
+    with col_form:
+        # ── Personal Info ──
+        st.markdown("**👤 Personal Information**")
+        r_name     = st.text_input("Full Name",          placeholder="e.g. Kishanraj B", key="r_name")
+        r_title    = st.text_input("Target Job Title",   placeholder="e.g. Data Scientist at Google", key="r_title")
+        r_email    = st.text_input("Email",              placeholder="you@email.com", key="r_email")
+        r_phone    = st.text_input("Phone",              placeholder="+91 98765 43210", key="r_phone")
+        r_location = st.text_input("Location",           placeholder="Bengaluru, India", key="r_location")
+
+        st.markdown("---")
+
+        # ── Summary ──
+        st.markdown("**✍ Professional Summary**")
+        r_summary = st.text_area(
+            "Brief summary (AI will enhance it)",
+            placeholder="e.g. 3 years in ML/AI, built production models, love Python...",
+            height=90, key="r_summary"
+        )
+
+        st.markdown("---")
+
+        # ── Experience ──
+        st.markdown("**💼 Work Experience**")
+        r_experience = st.text_area(
+            "List each role (company, title, dates, key achievements)",
+            placeholder=(
+                "TCS | Software Engineer | Jun 2022 – Present\n"
+                "• Built REST APIs serving 1M+ users\n"
+                "• Reduced query time by 40%\n\n"
+                "Infosys | Intern | Jan 2022 – May 2022\n"
+                "• Developed data pipeline in Python"
+            ),
+            height=160, key="r_experience"
+        )
+
+        st.markdown("---")
+
+        # ── Education ──
+        st.markdown("**🎓 Education**")
+        r_education = st.text_area(
+            "Degree, Institution, Year",
+            placeholder="B.Tech in CSE | VTU | 2022 | CGPA: 8.5",
+            height=70, key="r_education"
+        )
+
+        st.markdown("---")
+
+        # ── Skills ──
+        st.markdown("**⚡ Skills**")
+        r_skills = st.text_area(
+            "Comma-separated or categorised",
+            placeholder="Python, SQL, TensorFlow, React, Docker, AWS, Leadership, Communication",
+            height=70, key="r_skills"
+        )
+
+        st.markdown("---")
+
+        # ── Projects & Certifications (collapsible) ──
+        with st.expander("➕ Projects & Certifications (optional)"):
+            r_projects = st.text_area(
+                "Projects (name, description, tech stack)",
+                placeholder=(
+                    "SmartGen AI | Streamlit app using Gemini API for content generation | Python, Streamlit\n"
+                    "Portfolio Website | Personal site with 3D animations | React, Three.js"
+                ),
+                height=100, key="r_projects"
+            )
+            r_certifications = st.text_area(
+                "Certifications",
+                placeholder=(
+                    "Google Data Analytics | Coursera | 2023\n"
+                    "AWS Cloud Practitioner | Amazon | 2024"
+                ),
+                height=70, key="r_certs"
+            )
+        if "r_projects" not in st.session_state or not st.session_state.get("r_projects"):
+            r_projects      = ""
+            r_certifications = ""
+        else:
+            r_projects       = st.session_state.get("r_projects", "")
+            r_certifications = st.session_state.get("r_certs", "")
+
+        st.markdown(f"""
+        <div class="metric-row" style="margin-top:0.5rem;">
+            <span class="metric-chip">🌡 Temp: 0.2</span>
+            <span class="metric-chip">📋 ATS-optimised</span>
+            <span class="metric-chip">✦ Action verbs</span>
+        </div>
+        """, unsafe_allow_html=True)
+
+        build_resume_btn = st.button("✦ Build My Resume", use_container_width=True, key="gen_resume")
+
+    with col_out:
+        st.markdown('<div class="section-header">📄 Generated Resume</div>', unsafe_allow_html=True)
+
+        if build_resume_btn:
+            if not api_key:
+                st.error("❌ Please enter your Gemini API Key in the sidebar.")
+            elif not r_name.strip():
+                st.warning("⚠️ Please enter your full name.")
+            elif not r_title.strip():
+                st.warning("⚠️ Please enter your target job title.")
+            elif not r_experience.strip():
+                st.warning("⚠️ Please add at least one work experience entry.")
+            elif not r_skills.strip():
+                st.warning("⚠️ Please list your skills.")
+            else:
+                with st.spinner("Building your resume… (this takes ~15s)"):
+                    try:
+                        start = time.time()
+                        resume_text = generate_resume(
+                            name=r_name, job_title=r_title,
+                            email=r_email, phone=r_phone, location=r_location,
+                            summary=r_summary or "Generate a compelling professional summary from my experience.",
+                            experience=r_experience, education=r_education or "Not provided",
+                            skills=r_skills, projects=r_projects or "None",
+                            certifications=r_certifications or "None",
+                            api_key=api_key, model=model_choice
+                        )
+                        elapsed = round(time.time() - start, 1)
+
+                        file_name = f"{r_name.replace(' ', '_')}_Resume.txt"
+                        st.session_state.resume_history.append({
+                            "name": r_name,
+                            "title": r_title,
+                            "output": resume_text,
+                            "file": file_name,
+                        })
+                        st.session_state.total_generated += 1
+
+                        st.success(f"✓ Resume built in {elapsed}s")
+                        st.markdown(f'<div class="output-box">{resume_text}</div>', unsafe_allow_html=True)
+                        st.download_button(
+                            f"⬇ Download {file_name}",
+                            data=resume_text,
+                            file_name=file_name,
+                            mime="text/plain",
+                            use_container_width=True,
+                        )
+                    except Exception as e:
+                        st.error(f"❌ {e}")
+
+        elif st.session_state.resume_history:
+            last = st.session_state.resume_history[-1]
+            st.markdown(f'<div class="output-box">{last["output"]}</div>', unsafe_allow_html=True)
+            st.download_button(
+                f"⬇ Download {last['file']}",
+                data=last["output"],
+                file_name=last["file"],
+                mime="text/plain",
+                use_container_width=True,
+            )
+        else:
+            st.markdown("""
+            <div style="text-align:center; padding:3.5rem 2rem; color:rgba(0,0,0,0.25);">
+                <div style="font-size:2.5rem; margin-bottom:0.6rem;">📄</div>
+                <div style="font-size:0.9rem; font-weight:500;">
+                    Fill the form and click <strong style="color:rgba(0,0,0,0.4);">Build My Resume</strong>
+                </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+
+# ══════════════════════════════════════════════
+# TAB 4 — HISTORY
 # ══════════════════════════════════════════════
 with tab_history:
+    col_b, col_e = st.columns(2, gap="large")
+
+    with col_b:
+        st.markdown('<div class="section-header">📝 Blog History</div>', unsafe_allow_html=True)
+        if st.session_state.blog_history:
+            for i, item in enumerate(reversed(st.session_state.blog_history), 1):
+                with st.expander(f"#{len(st.session_state.blog_history)+1-i} — {item['topic'][:45]}"):
+                    st.markdown(f"""
+                    <div class="metric-row">
+                        <span class="metric-chip">🎨 {item['tone']}</span>
+                        <span class="metric-chip">📏 {item['word_count']} words</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    st.text(item["output"])
+                    st.download_button("⬇ Download", data=item["output"],
+                                       file_name=f"blog_{i}.txt", mime="text/plain",
+                                       key=f"dl_blog_{i}")
+        else:
+            st.info("No blogs generated yet.")
+
+    with col_e:
+        st.markdown('<div class="section-header">📧 Email History</div>', unsafe_allow_html=True)
+        if st.session_state.email_history:
+            for i, item in enumerate(reversed(st.session_state.email_history), 1):
+                with st.expander(f"#{len(st.session_state.email_history)+1-i} — To: {item['recipient'][:35]}"):
+                    st.markdown(f"""
+                    <div class="metric-row">
+                        <span class="metric-chip">🎯 {item['purpose'][:25]}</span>
+                        <span class="metric-chip">✍ {item['tone']}</span>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    st.text(item["output"])
+                    st.download_button("⬇ Download", data=item["output"],
+                                       file_name=f"email_{i}.txt", mime="text/plain",
+                                       key=f"dl_email_{i}")
+        else:
+            st.info("No emails generated yet.")
+
+    if st.session_state.resume_history:
+        st.divider()
+        st.markdown('<div class="section-header">📄 Resume History</div>', unsafe_allow_html=True)
+        for i, item in enumerate(reversed(st.session_state.resume_history), 1):
+            with st.expander(f"#{len(st.session_state.resume_history)+1-i} — {item['name']} | {item['title'][:35]}"):
+                st.text(item["output"])
+                st.download_button("⬇ Download", data=item["output"],
+                                   file_name=item["file"], mime="text/plain",
+                                   key=f"dl_resume_{i}")
+
+    if st.session_state.blog_history or st.session_state.email_history or st.session_state.resume_history:
+        st.divider()
+        if st.button("🗑 Clear All History", type="secondary"):
+            st.session_state.blog_history  = []
+            st.session_state.email_history = []
+            st.session_state.resume_history = []
+            st.session_state.total_generated = 0
+            st.rerun()
+
     col_b, col_e = st.columns(2, gap="large")
 
     with col_b:
