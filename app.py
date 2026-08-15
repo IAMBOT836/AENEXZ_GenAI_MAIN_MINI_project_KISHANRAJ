@@ -294,13 +294,13 @@ label[data-testid="stWidgetLabel"] p,
 # ─────────────────────────────────────────────
 # Helper: Gemini API call (Pure REST API — zero binary dependencies)
 # ─────────────────────────────────────────────
-def call_gemini(system_instruction: str, prompt: str, temperature: float, api_key: str, model: str = "gemini-2.5-flash") -> str:
+def call_gemini(system_instruction: str, prompt: str, temperature: float, api_key: str, model: str = "gemini-3.5-flash") -> str:
     """
     Calls Google Gemini API using the DIRECT REST API only.
     - No google-genai SDK dependency (no grpcio, no protobuf, no AFC warnings)
     - Only requires 'requests' which always installs cleanly on Streamlit Cloud
     - Automatically falls back across multiple models if one fails
-    Models tried: gemini-2.5-flash → gemini-2.5-pro → gemini-2.5-flash-lite → gemini-2.0-flash-001
+    Models tried: gemini-3.5-flash → gemini-3.1-flash-lite → gemini-flash-latest → gemini-3.7-flash
     """
     import json
     import requests
@@ -309,7 +309,7 @@ def call_gemini(system_instruction: str, prompt: str, temperature: float, api_ke
     if not api_key:
         raise ValueError("GEMINI_API_KEY is missing. Please enter it in the sidebar.")
 
-    candidate_models = [model, "gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite", "gemini-2.0-flash-001"]
+    candidate_models = [model, "gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-flash-latest", "gemini-3.7-flash"]
     seen = set()
     models_to_try = [m for m in candidate_models if not (m in seen or seen.add(m))]
     errors = []
@@ -351,7 +351,7 @@ def call_gemini(system_instruction: str, prompt: str, temperature: float, api_ke
     )
 
 
-def generate_blog(topic: str, tone: str, word_count: int, api_key: str, model: str = "gemini-2.5-flash") -> str:
+def generate_blog(topic: str, tone: str, word_count: int, api_key: str, model: str = "gemini-3.5-flash") -> str:
     system_instruction = "You are an experienced blog writer who crafts engaging, insightful, and well-structured articles."
     prompt = f"""Write a blog post based on the following details:
 - Topic: "{topic}"
@@ -367,7 +367,7 @@ Formatting & Structure Guidelines:
     return call_gemini(system_instruction, prompt, temperature=0.7, api_key=api_key, model=model)
 
 
-def generate_email(recipient: str, purpose: str, tone: str, api_key: str, model: str = "gemini-2.5-flash") -> str:
+def generate_email(recipient: str, purpose: str, tone: str, api_key: str, model: str = "gemini-3.5-flash") -> str:
     system_instruction = "You are a professional email writer who produces clear, polished, and effective emails."
     prompt = f"""Write an email based on the following details:
 - Recipient: {recipient}
@@ -433,9 +433,9 @@ with st.sidebar:
 
     model_choice = st.selectbox(
         "Gemini Model",
-        options=["gemini-2.5-flash", "gemini-2.5-pro", "gemini-2.5-flash-lite", "gemini-2.0-flash-001"],
+        options=["gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-flash-latest", "gemini-3.7-flash"],
         index=0,
-        help="Model used for content generation. Default is gemini-2.5-flash.",
+        help="Model used for content generation. Default is gemini-3.5-flash.",
     )
 
     if api_key:
@@ -477,7 +477,7 @@ st.markdown("""
         your intelligent content co-pilot.
     </div>
     <div style="margin-top:1rem; display:flex; gap:0.6rem; flex-wrap:wrap;">
-        <span class="metric-chip">🤖 Gemini 2.5 Flash</span>
+        <span class="metric-chip">🤖 Gemini 3.5 Flash</span>
         <span class="metric-chip">📝 Blog Generator</span>
         <span class="metric-chip">📧 Email Writer</span>
         <span class="metric-chip">⚡ Real-time Generation</span>
