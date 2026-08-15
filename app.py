@@ -292,14 +292,15 @@ label[data-testid="stWidgetLabel"] p,
 
 
 # ─────────────────────────────────────────────
-# Helper: Gemini API call (REST API — reliable across all environments)
+# Helper: Gemini API call (Pure REST API — zero binary dependencies)
 # ─────────────────────────────────────────────
 def call_gemini(system_instruction: str, prompt: str, temperature: float, api_key: str, model: str = "gemini-2.0-flash") -> str:
     """
-    Calls Google Gemini API using:
-    1. Official google-genai SDK via Chat.send_message (avoids AFC warning per SDK recommendation)
-    2. Direct HTTPS REST API fallback (zero dependency on SDK/grpcio — always works)
-    With automatic model fallback (gemini-2.0-flash → gemini-1.5-flash → gemini-2.0-flash-lite → gemini-1.5-pro).
+    Calls Google Gemini API using the DIRECT REST API only.
+    - No google-genai SDK dependency (no grpcio, no protobuf, no AFC warnings)
+    - Only requires 'requests' which always installs cleanly on Streamlit Cloud
+    - Automatically falls back across multiple models if one fails
+    Models tried: gemini-2.0-flash → gemini-1.5-flash → gemini-2.0-flash-lite → gemini-1.5-pro
     """
     import json
     import requests
@@ -313,54 +314,20 @@ def call_gemini(system_instruction: str, prompt: str, temperature: float, api_ke
     models_to_try = [m for m in candidate_models if not (m in seen or seen.add(m))]
     errors = []
 
-    # 1. Try google-genai SDK via Chat.send_message (recommended path — no AFC advisory)
-    try:
-        from google import genai
-        from google.genai import types
-
-        client = genai.Client(api_key=api_key)
-        for m in models_to_try:
-            try:
-                # Using Chat.send_message as recommended by the SDK to avoid AFC warning
-                chat = client.chats.create(
-                    model=m,
-                    config=types.GenerateContentConfig(
-                        system_instruction=system_instruction,
-                        temperature=temperature,
-                    )
-                )
-                response = chat.send_message(prompt)
-                if response and response.text:
-                    return response.text.strip()
-            except Exception as err:
-                errors.append(f"SDK ({m}): {err}")
-    except Exception as err:
-        errors.append(f"SDK Init: {err}")
-
-    # 2. Guaranteed Direct REST API Fallback (Zero dependency on SDK/grpcio)
     for m in models_to_try:
         try:
             url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key}"
-            headers = {"Content-Type": "application/json"}
             payload = {
-                "contents": [
-                    {
-                        "parts": [
-                            {"text": prompt}
-                        ]
-                    }
-                ],
-                "systemInstruction": {
-                    "parts": [
-                        {"text": system_instruction}
-                    ]
-                },
-                "generationConfig": {
-                    "temperature": temperature
-                }
+                "contents": [{"parts": [{"text": prompt}]}],
+                "systemInstruction": {"parts": [{"text": system_instruction}]},
+                "generationConfig": {"temperature": temperature},
             }
-
-            resp = requests.post(url, headers=headers, data=json.dumps(payload), timeout=60)
+            resp = requests.post(
+                url,
+                headers={"Content-Type": "application/json"},
+                data=json.dumps(payload),
+                timeout=60,
+            )
             if resp.status_code == 200:
                 data = resp.json()
                 candidates = data.get("candidates", [])
@@ -368,17 +335,19 @@ def call_gemini(system_instruction: str, prompt: str, temperature: float, api_ke
                     parts = candidates[0].get("content", {}).get("parts", [])
                     if parts and "text" in parts[0]:
                         return parts[0]["text"].strip()
+                errors.append(f"{m}: Empty response from API")
             else:
                 try:
                     err_msg = resp.json().get("error", {}).get("message", resp.text)
                 except Exception:
                     err_msg = resp.text
-                errors.append(f"REST API ({m} - HTTP {resp.status_code}): {err_msg}")
+                errors.append(f"{m} (HTTP {resp.status_code}): {err_msg}")
         except Exception as err:
-            errors.append(f"REST API ({m}): {err}")
+            errors.append(f"{m}: {err}")
 
     raise RuntimeError(
-        "Failed to generate content via Gemini API:\n" + "\n".join(errors[-4:])
+        "Gemini API call failed. Please check your API key.\n\nDetails:\n"
+        + "\n".join(errors[-4:])
     )
 
 
