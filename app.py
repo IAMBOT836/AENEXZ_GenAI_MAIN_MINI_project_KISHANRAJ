@@ -296,8 +296,8 @@ label[data-testid="stWidgetLabel"] p,
 # ─────────────────────────────────────────────
 def call_gemini(system_instruction: str, prompt: str, temperature: float, api_key: str, model: str = "gemini-2.0-flash") -> str:
     """
-    Calls Google Gemini API using modern google-genai SDK or legacy google-generativeai SDK
-    with automatic model fallback across supported models.
+    Calls Google Gemini API using the official modern google-genai SDK
+    with automatic fallback across available models (gemini-2.0-flash, gemini-1.5-flash, etc.).
     """
     if not api_key:
         raise ValueError("GEMINI_API_KEY is missing. Please enter it in the sidebar.")
@@ -307,7 +307,6 @@ def call_gemini(system_instruction: str, prompt: str, temperature: float, api_ke
     models_to_try = [m for m in candidate_models if not (m in seen or seen.add(m))]
     errors = []
 
-    # 1. Try modern google-genai SDK first
     try:
         from google import genai
         from google.genai import types
@@ -327,34 +326,12 @@ def call_gemini(system_instruction: str, prompt: str, temperature: float, api_ke
                 if response and response.text:
                     return response.text.strip()
             except Exception as err:
-                errors.append(f"google-genai ({m}): {err}")
+                errors.append(f"Model '{m}': {err}")
     except Exception as err:
-        errors.append(f"google-genai init: {err}")
-
-    # 2. Fallback to google-generativeai SDK
-    try:
-        import google.generativeai as genai_legacy
-
-        genai_legacy.configure(api_key=api_key)
-        for m in models_to_try:
-            try:
-                legacy_model = genai_legacy.GenerativeModel(
-                    model_name=m,
-                    system_instruction=system_instruction
-                )
-                response = legacy_model.generate_content(
-                    prompt,
-                    generation_config=genai_legacy.GenerationConfig(temperature=temperature)
-                )
-                if response and response.text:
-                    return response.text.strip()
-            except Exception as err:
-                errors.append(f"google-generativeai ({m}): {err}")
-    except Exception as err:
-        errors.append(f"google-generativeai init: {err}")
+        errors.append(f"Gemini client initialization error: {err}")
 
     raise RuntimeError(
-        "Failed to call Gemini API.\n" + "\n".join(errors[-4:])
+        "Failed to generate content via Gemini API:\n" + "\n".join(errors)
     )
 
 
