@@ -37,51 +37,57 @@ st.set_page_config(
 # ─────────────────────────────────────────────
 st.markdown("""
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-/* ── Root ── */
+/* ── Global Typography & Color ── */
 html, body, [class*="css"] {
-    font-family: 'Inter', sans-serif;
-    color: #0a0a0a;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    color: #000000 !important;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* ── Background ── */
+/* ── Canvas Background — Pure Minimal Light with Ambient Glass Gradient ── */
 .stApp {
-    background: #f5f5f7;
+    background: #ffffff !important;
     background-image:
-        radial-gradient(ellipse at 15% 10%, rgba(180,200,255,0.18) 0%, transparent 50%),
-        radial-gradient(ellipse at 85% 85%, rgba(200,220,255,0.14) 0%, transparent 50%);
+        radial-gradient(circle at 10% 15%, rgba(235, 240, 255, 0.7) 0%, transparent 45%),
+        radial-gradient(circle at 90% 85%, rgba(240, 235, 255, 0.6) 0%, transparent 45%) !important;
     min-height: 100vh;
 }
 
-/* ── Hide Streamlit branding ── */
+/* ── Hide Streamlit default chrome ── */
 #MainMenu, footer, header { visibility: hidden; }
 
-/* ── Sidebar ── */
+/* ── Universal Black Text Enforcement ── */
+h1, h2, h3, h4, h5, h6, p, span, label, div, strong, em, b {
+    color: #000000 !important;
+}
+
+/* ── Sidebar — Frosted Glass Panel ── */
 [data-testid="stSidebar"] {
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border-right: 1px solid rgba(0, 0, 0, 0.07);
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.04);
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(28px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
+    border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02) !important;
 }
 
 [data-testid="stSidebar"] * {
-    color: #111 !important;
+    color: #000000 !important;
 }
 
-/* ── Hero Banner — glass card ── */
+/* ── Hero Banner — Ultra-Clean Glassmorphic Card ── */
 .hero-banner {
-    background: rgba(255, 255, 255, 0.7);
-    backdrop-filter: blur(32px);
-    -webkit-backdrop-filter: blur(32px);
-    border: 1px solid rgba(255, 255, 255, 0.95);
-    border-radius: 24px;
-    padding: 2.4rem 2.8rem;
-    margin-bottom: 1.8rem;
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(0, 0, 0, 0.09) !important;
+    border-radius: 24px !important;
+    padding: 2.5rem 3rem !important;
+    margin-bottom: 1.8rem !important;
     box-shadow:
-        0 8px 32px rgba(0, 0, 0, 0.05),
-        0 1px 0 rgba(255,255,255,0.9) inset;
+        0 10px 30px rgba(0, 0, 0, 0.04),
+        0 1px 0 rgba(255, 255, 255, 1) inset !important;
     position: relative;
     overflow: hidden;
 }
@@ -91,369 +97,408 @@ html, body, [class*="css"] {
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 2px;
-    background: linear-gradient(90deg, transparent, rgba(60,60,60,0.15), transparent);
+    background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.18), transparent);
 }
 
 .hero-title {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: #0a0a0a;
-    letter-spacing: -0.03em;
-    margin: 0;
-    line-height: 1.15;
-}
-
-.hero-title span {
-    background: linear-gradient(135deg, #111827 0%, #374151 50%, #1f2937 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    font-size: 2.6rem !important;
+    font-weight: 900 !important;
+    color: #000000 !important;
+    letter-spacing: -0.04em !important;
+    margin: 0 !important;
+    line-height: 1.15 !important;
 }
 
 .hero-subtitle {
-    color: rgba(10, 10, 10, 0.6);
-    font-size: 1.02rem;
-    margin-top: 0.5rem;
-    font-weight: 400;
-    letter-spacing: -0.01em;
+    color: #333333 !important;
+    font-size: 1.05rem !important;
+    margin-top: 0.6rem !important;
+    font-weight: 400 !important;
+    letter-spacing: -0.01em !important;
 }
 
-/* ── 4-Step Pipeline Flow Diagram (Interactive Visual Indicator) ── */
+/* ── 4-Step Pipeline Flow Diagram (Visual Pipeline) ── */
 .pipeline-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1rem;
-    margin: 1.5rem 0 2rem 0;
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+    gap: 1.2rem !important;
+    margin: 1.5rem 0 2.2rem 0 !important;
 }
 
 .pipeline-step {
-    background: rgba(255, 255, 255, 0.75);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    border-radius: 18px;
-    padding: 1.5rem 1.2rem;
-    text-align: center;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-    position: relative;
-    transition: all 0.25s ease;
+    background: rgba(255, 255, 255, 0.88) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: 20px !important;
+    padding: 1.6rem 1.3rem !important;
+    text-align: center !important;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03) !important;
+    position: relative !important;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease !important;
 }
 
 .pipeline-step:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-    border-color: rgba(0,0,0,0.15);
+    transform: translateY(-3px) !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.07) !important;
+    border-color: rgba(0, 0, 0, 0.2) !important;
 }
 
 .step-number {
-    position: absolute;
-    top: 12px;
-    left: 16px;
-    font-size: 0.78rem;
-    font-weight: 700;
-    color: rgba(0,0,0,0.35);
+    position: absolute !important;
+    top: 14px !important;
+    left: 16px !important;
+    font-size: 0.8rem !important;
+    font-weight: 800 !important;
+    color: #666666 !important;
 }
 
 .step-icon-circle {
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    margin: 0.3rem auto 0.9rem auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: white;
+    width: 60px !important;
+    height: 60px !important;
+    border-radius: 50% !important;
+    margin: 0.3rem auto 1rem auto !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 1.6rem !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15) !important;
 }
 
-.icon-c1 { background: linear-gradient(135deg, #1e1b4b, #312e81); }
-.icon-c2 { background: linear-gradient(135deg, #f87171, #ef4444); }
-.icon-c3 { background: linear-gradient(135deg, #10b981, #059669); }
-.icon-c4 { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+.icon-c1 { background: #000000 !important; }
+.icon-c2 { background: #1f2937 !important; }
+.icon-c3 { background: #374151 !important; }
+.icon-c4 { background: #111827 !important; }
 
 .step-title {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #0a0a0a;
-    margin-bottom: 0.35rem;
-    letter-spacing: -0.02em;
+    font-size: 1.1rem !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+    margin-bottom: 0.4rem !important;
+    letter-spacing: -0.02em !important;
 }
 
 .step-desc {
-    font-size: 0.78rem;
-    color: rgba(0,0,0,0.55);
-    line-height: 1.45;
+    font-size: 0.8rem !important;
+    color: #444444 !important;
+    line-height: 1.5 !important;
+    font-weight: 400 !important;
 }
 
-/* ── Glass Cards ── */
+/* ── Frosted Glass Cards ── */
 .glass-card {
-    background: rgba(255, 255, 255, 0.65);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid rgba(255, 255, 255, 0.9);
-    border-radius: 20px;
-    padding: 1.8rem;
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(24px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: 20px !important;
+    padding: 1.8rem !important;
     box-shadow:
-        0 4px 24px rgba(0, 0, 0, 0.05),
-        0 1px 0 rgba(255,255,255,0.95) inset;
-    margin-bottom: 1.2rem;
+        0 6px 24px rgba(0, 0, 0, 0.03),
+        0 1px 0 rgba(255, 255, 255, 1) inset !important;
+    margin-bottom: 1.2rem !important;
 }
 
-/* ── Tab Styling ── */
+/* ── Minimalist Glass Tabs ── */
 [data-testid="stTabs"] [role="tablist"] {
-    background: rgba(255,255,255,0.65);
-    backdrop-filter: blur(16px);
-    border-radius: 14px;
-    padding: 5px;
-    border: 1px solid rgba(0,0,0,0.07);
-    gap: 4px;
+    background: rgba(255, 255, 255, 0.75) !important;
+    backdrop-filter: blur(16px) !important;
+    border-radius: 16px !important;
+    padding: 6px !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    gap: 6px !important;
 }
 
 [data-testid="stTabs"] button {
-    border-radius: 10px !important;
-    font-weight: 600 !important;
-    font-size: 0.88rem !important;
-    color: rgba(0,0,0,0.5) !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    color: #555555 !important;
     transition: all 0.2s ease !important;
-    padding: 0.5rem 1.1rem !important;
+    padding: 0.55rem 1.2rem !important;
+    border: none !important;
 }
 
 [data-testid="stTabs"] button[aria-selected="true"] {
-    background: rgba(255,255,255,0.95) !important;
-    color: #0a0a0a !important;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
+    background: #000000 !important;
+    color: #ffffff !important;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.18) !important;
 }
 
-/* ── Input Fields ── */
+[data-testid="stTabs"] button[aria-selected="true"] * {
+    color: #ffffff !important;
+}
+
+/* ── Input Fields & Controls ── */
 [data-testid="stTextInput"] input,
 [data-testid="stSelectbox"] select,
 [data-testid="stNumberInput"] input,
 [data-testid="stTextArea"] textarea {
-    background: rgba(255,255,255,0.85) !important;
-    border: 1px solid rgba(0,0,0,0.1) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    border: 1px solid rgba(0, 0, 0, 0.14) !important;
     border-radius: 12px !important;
-    color: #0a0a0a !important;
+    color: #000000 !important;
     font-family: 'Inter', sans-serif !important;
+    font-size: 0.92rem !important;
     transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.03) !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02) !important;
 }
 
 [data-testid="stTextInput"] input:focus,
 [data-testid="stSelectbox"] select:focus,
 [data-testid="stNumberInput"] input:focus,
 [data-testid="stTextArea"] textarea:focus {
-    border-color: rgba(0,0,0,0.35) !important;
-    box-shadow: 0 0 0 3px rgba(0,0,0,0.06) !important;
+    border-color: #000000 !important;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* ── Labels ── */
+/* ── Labels & Headers ── */
 label[data-testid="stWidgetLabel"] p,
 .stSelectbox label p,
 .stTextInput label p,
 .stNumberInput label p,
 .stSlider label p,
-.stTextArea label p {
-    color: #111111 !important;
-    font-weight: 600 !important;
-    font-size: 0.88rem !important;
+.stTextArea label p,
+.stRadio label p {
+    color: #000000 !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
     letter-spacing: -0.01em !important;
 }
 
-/* ── Buttons ── */
+/* ── Buttons — Solid Black with Crisp Hover ── */
 .stButton > button {
-    background: #0a0a0a !important;
+    background: #000000 !important;
     color: #ffffff !important;
     border: none !important;
     border-radius: 12px !important;
-    font-weight: 600 !important;
+    font-weight: 700 !important;
     font-size: 0.95rem !important;
-    padding: 0.65rem 1.8rem !important;
+    padding: 0.7rem 2rem !important;
     transition: all 0.25s ease !important;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.16) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18) !important;
     font-family: 'Inter', sans-serif !important;
+    letter-spacing: -0.01em !important;
+}
+
+.stButton > button * {
+    color: #ffffff !important;
 }
 
 .stButton > button:hover {
-    background: #262626 !important;
+    background: #222222 !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.22) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25) !important;
 }
 
 .stButton > button:active {
     transform: translateY(0) !important;
 }
 
-/* ── Download buttons ── */
+/* ── Outlined White Glass Download Buttons ── */
 [data-testid="stDownloadButton"] button {
-    background: rgba(255,255,255,0.85) !important;
-    color: #0a0a0a !important;
-    border: 1px solid rgba(0,0,0,0.15) !important;
+    background: rgba(255, 255, 255, 0.95) !important;
+    color: #000000 !important;
+    border: 1px solid rgba(0, 0, 0, 0.18) !important;
     border-radius: 12px !important;
-    font-weight: 600 !important;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.04) !important;
+    font-weight: 700 !important;
+    font-size: 0.9rem !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+}
+
+[data-testid="stDownloadButton"] button * {
+    color: #000000 !important;
 }
 
 [data-testid="stDownloadButton"] button:hover {
-    background: rgba(255,255,255,1) !important;
-    border-color: rgba(0,0,0,0.3) !important;
+    background: #ffffff !important;
+    border-color: #000000 !important;
     transform: translateY(-1px) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08) !important;
 }
 
-/* ── Output Box ── */
+/* ── Output Box — Clean Minimal Mono Panel ── */
 .output-box {
-    background: rgba(255,255,255,0.8);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(0,0,0,0.08);
-    border-radius: 16px;
-    padding: 1.5rem 1.8rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.84rem;
-    color: #1a1a1a;
-    line-height: 1.75;
-    max-height: 520px;
-    overflow-y: auto;
-    white-space: pre-wrap;
-    word-break: break-word;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+    background: rgba(255, 255, 255, 0.95) !important;
+    backdrop-filter: blur(16px) !important;
+    -webkit-backdrop-filter: blur(16px) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 16px !important;
+    padding: 1.6rem 1.8rem !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 0.85rem !important;
+    color: #000000 !important;
+    line-height: 1.8 !important;
+    max-height: 520px !important;
+    overflow-y: auto !important;
+    white-space: pre-wrap !important;
+    word-break: break-word !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03) !important;
 }
 
 .output-box::-webkit-scrollbar { width: 5px; }
-.output-box::-webkit-scrollbar-track { background: rgba(0,0,0,0.03); border-radius: 3px; }
-.output-box::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
-
-/* ── Chips / Tags ── */
-.metric-row {
-    display: flex;
-    gap: 0.5rem;
-    flex-wrap: wrap;
-    margin-bottom: 1.2rem;
-}
-
-.metric-chip {
-    background: rgba(0,0,0,0.05);
-    border: 1px solid rgba(0,0,0,0.08);
-    border-radius: 20px;
-    padding: 0.28rem 0.85rem;
-    font-size: 0.78rem;
-    color: #222;
-    font-weight: 500;
-}
-
-.chip-matched {
-    background: rgba(16, 185, 129, 0.12);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    color: #065f46;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    display: inline-block;
-    margin: 2px;
-}
-
-.chip-missing {
-    background: rgba(239, 68, 68, 0.1);
-    border: 1px solid rgba(239, 68, 68, 0.25);
-    color: #991b1b;
-    padding: 0.25rem 0.75rem;
-    border-radius: 20px;
-    font-size: 0.78rem;
-    font-weight: 600;
-    display: inline-block;
-    margin: 2px;
-}
+.output-box::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.03); border-radius: 3px; }
+.output-box::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.2); border-radius: 3px; }
 
 /* ── Section Headers ── */
 .section-header {
-    font-size: 1.08rem;
-    font-weight: 700;
-    color: #0a0a0a;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    margin-bottom: 1.2rem;
-    padding-bottom: 0.7rem;
-    border-bottom: 1px solid rgba(0,0,0,0.07);
-    letter-spacing: -0.02em;
+    font-size: 1.15rem !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    margin-bottom: 1.2rem !important;
+    padding-bottom: 0.7rem !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+    letter-spacing: -0.02em !important;
+}
+
+/* ── Chips / Tags ── */
+.metric-row {
+    display: flex !important;
+    gap: 0.5rem !important;
+    flex-wrap: wrap !important;
+    margin-bottom: 1.2rem !important;
+}
+
+.metric-chip {
+    background: rgba(0, 0, 0, 0.05) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    border-radius: 20px !important;
+    padding: 0.3rem 0.9rem !important;
+    font-size: 0.8rem !important;
+    color: #000000 !important;
+    font-weight: 600 !important;
+}
+
+.chip-matched {
+    background: rgba(16, 185, 129, 0.1) !important;
+    border: 1px solid rgba(16, 185, 129, 0.3) !important;
+    color: #065f46 !important;
+    padding: 0.28rem 0.8rem !important;
+    border-radius: 20px !important;
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    display: inline-block !important;
+    margin: 2px !important;
+}
+
+.chip-missing {
+    background: rgba(239, 68, 68, 0.08) !important;
+    border: 1px solid rgba(239, 68, 68, 0.25) !important;
+    color: #991b1b !important;
+    padding: 0.28rem 0.8rem !important;
+    border-radius: 20px !important;
+    font-size: 0.8rem !important;
+    font-weight: 700 !important;
+    display: inline-block !important;
+    margin: 2px !important;
 }
 
 /* ── Score Badge ── */
 .score-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: #0a0a0a;
-    color: #ffffff;
-    font-weight: 800;
-    font-size: 1.4rem;
-    padding: 0.6rem 1.2rem;
-    border-radius: 16px;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    background: #000000 !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    font-size: 1.4rem !important;
+    padding: 0.6rem 1.2rem !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15) !important;
 }
 
 /* ── Badges ── */
 .badge-success {
-    background: rgba(34,197,94,0.12);
-    border: 1px solid rgba(34,197,94,0.25);
-    color: #15803d;
-    padding: 0.25rem 0.8rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-    display: inline-block;
+    background: rgba(34, 197, 94, 0.12) !important;
+    border: 1px solid rgba(34, 197, 94, 0.25) !important;
+    color: #15803d !important;
+    padding: 0.25rem 0.8rem !important;
+    border-radius: 20px !important;
+    font-size: 0.82rem !important;
+    font-weight: 700 !important;
+    display: inline-block !important;
 }
 
 /* ── Sidebar stats ── */
 .sidebar-stat {
-    background: rgba(0,0,0,0.04);
-    border: 1px solid rgba(0,0,0,0.07);
-    border-radius: 10px;
-    padding: 0.7rem 0.95rem;
-    margin-bottom: 0.4rem;
-    color: #111;
-    font-size: 0.86rem;
-    font-weight: 500;
+    background: rgba(0, 0, 0, 0.04) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: 12px !important;
+    padding: 0.75rem 1rem !important;
+    margin-bottom: 0.45rem !important;
+    color: #000000 !important;
+    font-size: 0.88rem !important;
+    font-weight: 600 !important;
 }
 
 /* ── Chat Messages ── */
 .chat-bubble-user {
-    background: #0a0a0a;
-    color: #ffffff;
-    padding: 0.9rem 1.2rem;
-    border-radius: 16px 16px 4px 16px;
-    margin: 0.6rem 0 0.6rem auto;
-    max-width: 80%;
-    font-size: 0.9rem;
-    line-height: 1.5;
+    background: #000000 !important;
+    color: #ffffff !important;
+    padding: 1rem 1.3rem !important;
+    border-radius: 18px 18px 4px 18px !important;
+    margin: 0.6rem 0 0.6rem auto !important;
+    max-width: 80% !important;
+    font-size: 0.92rem !important;
+    line-height: 1.55 !important;
+    font-weight: 500 !important;
+}
+
+.chat-bubble-user * {
+    color: #ffffff !important;
 }
 
 .chat-bubble-ai {
-    background: rgba(255,255,255,0.85);
-    border: 1px solid rgba(0,0,0,0.08);
-    color: #0a0a0a;
-    padding: 1.1rem 1.4rem;
-    border-radius: 16px 16px 16px 4px;
-    margin: 0.6rem auto 0.6rem 0;
-    max-width: 88%;
-    font-size: 0.9rem;
-    line-height: 1.65;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    background: rgba(255, 255, 255, 0.92) !important;
+    border: 1px solid rgba(0, 0, 0, 0.09) !important;
+    color: #000000 !important;
+    padding: 1.2rem 1.5rem !important;
+    border-radius: 18px 18px 18px 4px !important;
+    margin: 0.6rem auto 0.6rem 0 !important;
+    max-width: 88% !important;
+    font-size: 0.92rem !important;
+    line-height: 1.7 !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03) !important;
+}
+
+.chat-bubble-ai * {
+    color: #000000 !important;
 }
 
 /* ── File Uploader ── */
 [data-testid="stFileUploader"] {
-    background: rgba(255,255,255,0.65);
-    border: 1px dashed rgba(0,0,0,0.18);
-    border-radius: 16px;
-    padding: 1rem;
+    background: rgba(255, 255, 255, 0.75) !important;
+    border: 1px dashed rgba(0, 0, 0, 0.2) !important;
+    border-radius: 16px !important;
+    padding: 1.2rem !important;
+}
+
+/* ── Expanders ── */
+[data-testid="stExpander"] {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(14px) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: 14px !important;
+}
+
+/* ── Alerts ── */
+[data-testid="stAlert"] {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border-radius: 14px !important;
+    color: #000000 !important;
 }
 
 /* ── Divider ── */
-hr { border-color: rgba(0,0,0,0.07) !important; }
-[data-testid="stHorizontalBlock"] { gap: 1.4rem; }
+hr { border-color: rgba(0, 0, 0, 0.08) !important; }
+[data-testid="stHorizontalBlock"] { gap: 1.4rem !important; }
 </style>
 """, unsafe_allow_html=True)
+
 
 
 # ─────────────────────────────────────────────
