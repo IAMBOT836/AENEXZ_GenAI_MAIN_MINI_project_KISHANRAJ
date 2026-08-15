@@ -1,963 +1,952 @@
 """
 SmartGen AI — Career Intelligence & Content Studio
---------------------------------------------------
-Minimalist design: pure white background, black typography, clean glassmorphism.
-Powered by Google Gemini REST API.
+Gemini REST API | Minimalist glassmorphism | White/Black
 """
 
 import streamlit as st
-import os
-import io
-import json
-import time
-import re
+import os, io, json, time, re
 
-# ─────────────────────────────────────────────
-# Page Configuration
-# ─────────────────────────────────────────────
 st.set_page_config(
     page_title="SmartGen AI",
+    page_icon="✦",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
-# ─────────────────────────────────────────────
-# Custom CSS — Ultra-Minimalist (White + Black + Glassmorphism)
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
+# CSS — Premium Minimal Glassmorphism
+# ─────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-/* ── Global Typography & Tone ── */
+/* ── Reset & Base ── */
+*, *::before, *::after { box-sizing: border-box; }
 html, body, [class*="css"] {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-    color: #000000 !important;
+    color: #0a0a0a !important;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Pure Minimal Light Canvas ── */
+/* ── Canvas ── */
 .stApp {
-    background: #ffffff !important;
+    background: #f8f9fa !important;
     background-image:
-        radial-gradient(circle at 10% 15%, rgba(242, 244, 248, 0.8) 0%, transparent 45%),
-        radial-gradient(circle at 90% 85%, rgba(244, 242, 248, 0.6) 0%, transparent 45%) !important;
+        radial-gradient(ellipse at 0% 0%, rgba(224,228,240,0.5) 0%, transparent 55%),
+        radial-gradient(ellipse at 100% 100%, rgba(228,224,240,0.4) 0%, transparent 55%) !important;
     min-height: 100vh;
 }
 
-/* ── Hide Streamlit default chrome ── */
-#MainMenu, footer, header { visibility: hidden; }
+/* ── Hide chrome ── */
+#MainMenu, footer, header { visibility: hidden !important; }
+[data-testid="stToolbar"] { display: none !important; }
 
-/* ── Universal Black Text ── */
-h1, h2, h3, h4, h5, h6, p, span, label, div, strong, em, b {
-    color: #000000 !important;
-}
-
-/* ── Sidebar — Frosted Glass Panel ── */
-[data-testid="stSidebar"] {
-    background: rgba(255, 255, 255, 0.88) !important;
-    backdrop-filter: blur(28px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(28px) saturate(180%) !important;
-    border-right: 1px solid rgba(0, 0, 0, 0.08) !important;
-    box-shadow: 2px 0 20px rgba(0, 0, 0, 0.02) !important;
-}
-
-[data-testid="stSidebar"] * {
-    color: #000000 !important;
-}
-
-/* ── Container Layout & Spacing Reset ── */
+/* ── Layout ── */
 .block-container {
-    padding-top: 1.8rem !important;
-    padding-bottom: 2.5rem !important;
-    padding-left: 2rem !important;
-    padding-right: 2rem !important;
-    max-width: 1240px !important;
+    padding: 1.4rem 2.2rem 3rem 2.2rem !important;
+    max-width: 1280px !important;
     margin: 0 auto !important;
 }
-
 section[data-testid="stSidebar"] .block-container {
-    padding-top: 1.5rem !important;
-    padding-bottom: 1.5rem !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    padding: 0 !important;
 }
 
-/* ── Hero Banner — Minimal Header ── */
-.hero-banner {
-    background: rgba(255, 255, 255, 0.9) !important;
+/* ── Sidebar ── */
+[data-testid="stSidebar"] {
+    background: rgba(255,255,255,0.95) !important;
+    backdrop-filter: blur(32px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(32px) saturate(200%) !important;
+    border-right: 1px solid rgba(0,0,0,0.07) !important;
+    box-shadow: 4px 0 32px rgba(0,0,0,0.04) !important;
+}
+[data-testid="stSidebar"] > div:first-child {
+    padding: 1.8rem 1.4rem !important;
+}
+[data-testid="stSidebar"] * { color: #0a0a0a !important; }
+
+/* ── Universal text ── */
+h1,h2,h3,h4,h5,h6,p,span,label,strong,em,b,div {
+    color: #0a0a0a !important;
+}
+
+/* ── Hero ── */
+.hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255,255,255,0.88);
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 16px;
+    padding: 1.4rem 2rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.03);
+}
+.hero-left h1 {
+    font-size: 1.75rem !important;
+    font-weight: 900 !important;
+    letter-spacing: -0.04em !important;
+    margin: 0 0 0.15rem 0 !important;
+    line-height: 1.1 !important;
+    color: #0a0a0a !important;
+}
+.hero-left p {
+    font-size: 0.88rem !important;
+    color: #555 !important;
+    margin: 0 !important;
+    font-weight: 400 !important;
+}
+.hero-right {
+    display: flex;
+    gap: 1.4rem;
+    align-items: center;
+}
+.hero-stat {
+    text-align: center;
+}
+.hero-stat-num {
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: #0a0a0a !important;
+    letter-spacing: -0.03em;
+    display: block;
+}
+.hero-stat-label {
+    font-size: 0.72rem;
+    color: #777 !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+.hero-divider {
+    width: 1px;
+    height: 36px;
+    background: rgba(0,0,0,0.1);
+}
+
+/* ── Glass Card ── */
+.glass-card {
+    background: rgba(255,255,255,0.9) !important;
     backdrop-filter: blur(20px) saturate(180%) !important;
     -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
     border-radius: 14px !important;
-    padding: 1.2rem 1.6rem !important;
+    padding: 1.4rem 1.6rem !important;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.03) !important;
     margin-bottom: 1rem !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02) !important;
 }
 
-.hero-title {
-    font-size: 1.8rem !important;
-    font-weight: 900 !important;
-    color: #000000 !important;
-    letter-spacing: -0.03em !important;
-    margin: 0 !important;
-    line-height: 1.15 !important;
+/* ── Info Panel ── */
+.info-panel {
+    background: rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 12px;
+    padding: 1rem 1.2rem;
+    margin-bottom: 1rem;
+}
+.info-panel-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #888 !important;
+    margin-bottom: 0.3rem;
+}
+.info-panel-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0a0a0a !important;
+    line-height: 1.5;
 }
 
-.hero-subtitle {
-    color: #555555 !important;
-    font-size: 0.9rem !important;
-    margin-top: 0.25rem !important;
-    font-weight: 400 !important;
-    letter-spacing: -0.01em !important;
+/* ── Section Header ── */
+.section-header {
+    font-size: 0.78rem !important;
+    font-weight: 800 !important;
+    color: #888 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.08em !important;
+    margin: 0 0 0.9rem 0 !important;
+    padding-bottom: 0.5rem !important;
+    border-bottom: 1px solid rgba(0,0,0,0.07) !important;
 }
 
-/* ── Frosted Glass Cards ── */
-.glass-card {
-    background: rgba(255, 255, 255, 0.85) !important;
-    backdrop-filter: blur(16px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    border-radius: 12px !important;
-    padding: 1.2rem 1.4rem !important;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02) !important;
-    margin-bottom: 0.8rem !important;
-}
-
-/* ── Minimalist Pill Tabs ── */
-[data-testid="stTabs"] {
-    margin-top: 0.4rem !important;
-}
+/* ── Tabs (clean pill group) ── */
+[data-testid="stTabs"] { margin-top: 0.2rem !important; }
 
 [data-testid="stTabs"] [data-baseweb="tab-list"],
-[data-testid="stTabs"] [role="tablist"],
-.stTabs [data-baseweb="tab-list"] {
-    background: rgba(0, 0, 0, 0.03) !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+[data-testid="stTabs"] [role="tablist"] {
+    background: rgba(255,255,255,0.9) !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
     border-radius: 12px !important;
-    padding: 6px !important;
-    gap: 8px !important;
+    padding: 5px !important;
+    gap: 6px !important;
     display: flex !important;
-    flex-wrap: wrap !important;
-    margin-bottom: 1.4rem !important;
-    width: 100% !important;
+    flex-wrap: nowrap !important;
+    overflow-x: auto !important;
+    margin-bottom: 1.6rem !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.03) !important;
 }
 
 [data-testid="stTabs"] [data-baseweb="tab-highlight"],
-[data-testid="stTabs"] [data-baseweb="tab-border"],
-.stTabs [data-baseweb="tab-highlight"],
-.stTabs [data-baseweb="tab-border"] {
+[data-testid="stTabs"] [data-baseweb="tab-border"] {
     display: none !important;
     visibility: hidden !important;
 }
 
 [data-testid="stTabs"] [data-baseweb="tab"],
-[data-testid="stTabs"] button[role="tab"],
-.stTabs button[data-baseweb="tab"] {
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+[data-testid="stTabs"] button[role="tab"] {
+    background: transparent !important;
+    border: none !important;
     border-radius: 8px !important;
-    padding: 0.55rem 1.3rem !important;
-    margin: 0 !important;
-    color: #333333 !important;
+    padding: 0.55rem 1.2rem !important;
+    color: #666 !important;
     font-weight: 600 !important;
-    font-size: 0.88rem !important;
-    transition: all 0.2s ease !important;
+    font-size: 0.86rem !important;
+    transition: all 0.18s ease !important;
     cursor: pointer !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+    white-space: nowrap !important;
+    letter-spacing: -0.01em !important;
 }
 
 [data-testid="stTabs"] [data-baseweb="tab"]:hover,
-[data-testid="stTabs"] button[role="tab"]:hover,
-.stTabs button[data-baseweb="tab"]:hover {
-    background: #ffffff !important;
-    border-color: rgba(0, 0, 0, 0.2) !important;
-    color: #000000 !important;
+[data-testid="stTabs"] button[role="tab"]:hover {
+    background: rgba(0,0,0,0.05) !important;
+    color: #000 !important;
 }
 
 [data-testid="stTabs"] [data-baseweb="tab"][aria-selected="true"],
-[data-testid="stTabs"] button[role="tab"][aria-selected="true"],
-.stTabs button[data-baseweb="tab"][aria-selected="true"] {
-    background: #000000 !important;
-    border-color: #000000 !important;
-    color: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16) !important;
+[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
+    background: #0a0a0a !important;
+    color: #fff !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.18) !important;
     font-weight: 700 !important;
 }
 
 [data-testid="stTabs"] [data-baseweb="tab"][aria-selected="true"] *,
-[data-testid="stTabs"] button[role="tab"][aria-selected="true"] *,
-.stTabs button[data-baseweb="tab"][aria-selected="true"] * {
-    color: #ffffff !important;
+[data-testid="stTabs"] button[role="tab"][aria-selected="true"] * {
+    color: #fff !important;
 }
 
-[data-testid="stTabs"] [data-baseweb="tab"] *,
-.stTabs button[data-baseweb="tab"] * {
-    font-size: 0.88rem !important;
-}
-
-/* ── Columns & Block Gap ── */
+/* ── Columns ── */
 [data-testid="stHorizontalBlock"] {
-    gap: 1.5rem !important;
+    gap: 1.6rem !important;
     align-items: flex-start !important;
 }
+[data-testid="column"] { min-width: 0 !important; }
 
-[data-testid="column"] {
-    min-width: 0 !important;
+/* ── Widgets ── */
+.stTextInput, .stSelectbox, .stNumberInput, .stSlider, .stTextArea, .stFileUploader, .stRadio {
+    margin-bottom: 0.9rem !important;
 }
 
-/* ── Widget Containers & Spacing ── */
-.stTextInput,
-.stSelectbox,
-.stNumberInput,
-.stSlider,
-.stTextArea,
-.stFileUploader {
-    margin-bottom: 0.85rem !important;
-}
-
-label[data-testid="stWidgetLabel"] {
-    min-height: auto !important;
-    margin-bottom: 0.25rem !important;
-}
-
-label[data-testid="stWidgetLabel"] p,
-.stSelectbox label p,
-.stTextInput label p,
-.stNumberInput label p,
-.stSlider label p,
-.stTextArea label p,
-.stRadio label p {
-    color: #000000 !important;
-    font-weight: 700 !important;
-    font-size: 0.86rem !important;
-    margin: 0 !important;
+label[data-testid="stWidgetLabel"],
+label[data-testid="stWidgetLabel"] p {
+    font-weight: 600 !important;
+    font-size: 0.83rem !important;
+    color: #333 !important;
+    margin-bottom: 0.3rem !important;
     letter-spacing: -0.01em !important;
 }
 
-/* ── Radio Buttons Spacing ── */
-[data-testid="stRadio"] > div[role="radiogroup"] {
-    gap: 1rem !important;
-    margin-top: 0.2rem !important;
-    margin-bottom: 0.6rem !important;
-}
-
-/* ── Input Fields ── */
 [data-testid="stTextInput"] input,
-[data-testid="stSelectbox"] select,
-[data-testid="stNumberInput"] input,
-[data-testid="stTextArea"] textarea {
-    background: rgba(255, 255, 255, 0.95) !important;
-    border: 1px solid rgba(0, 0, 0, 0.14) !important;
+[data-testid="stTextArea"] textarea,
+[data-testid="stNumberInput"] input {
+    background: #fff !important;
+    border: 1px solid rgba(0,0,0,0.14) !important;
     border-radius: 8px !important;
-    color: #000000 !important;
+    color: #0a0a0a !important;
     font-family: 'Inter', sans-serif !important;
     font-size: 0.88rem !important;
-    padding: 0.5rem 0.75rem !important;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
+    padding: 0.55rem 0.8rem !important;
+    transition: border-color 0.18s, box-shadow 0.18s !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.02) !important;
 }
 
 [data-testid="stTextInput"] input:focus,
-[data-testid="stSelectbox"] select:focus,
-[data-testid="stNumberInput"] input:focus,
 [data-testid="stTextArea"] textarea:focus {
-    border-color: #000000 !important;
-    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important;
+    border-color: #0a0a0a !important;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.07) !important;
+    outline: none !important;
 }
 
-/* ── Buttons ── */
-.stButton {
-    margin-top: 0.2rem !important;
-    margin-bottom: 0.6rem !important;
+/* selectbox */
+[data-testid="stSelectbox"] > div > div {
+    background: #fff !important;
+    border: 1px solid rgba(0,0,0,0.14) !important;
+    border-radius: 8px !important;
+    font-size: 0.88rem !important;
 }
 
+/* slider */
+[data-testid="stSlider"] [data-testid="stThumbValue"] { color: #0a0a0a !important; }
+
+/* radio */
+[data-testid="stRadio"] > div[role="radiogroup"] {
+    gap: 0.8rem !important;
+    margin-top: 0.25rem !important;
+    flex-wrap: wrap !important;
+}
+[data-testid="stRadio"] label {
+    font-size: 0.86rem !important;
+    font-weight: 500 !important;
+}
+
+/* ── Primary Button ── */
+.stButton { margin-bottom: 0.5rem !important; }
 .stButton > button {
-    background: #000000 !important;
-    color: #ffffff !important;
+    background: #0a0a0a !important;
+    color: #fff !important;
     border: none !important;
     border-radius: 8px !important;
     font-weight: 700 !important;
     font-size: 0.88rem !important;
-    padding: 0.55rem 1.4rem !important;
-    transition: all 0.2s ease !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
-    font-family: 'Inter', sans-serif !important;
+    padding: 0.6rem 1.5rem !important;
+    transition: all 0.18s ease !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.14) !important;
     letter-spacing: -0.01em !important;
+    font-family: 'Inter', sans-serif !important;
 }
-
-.stButton > button * {
-    color: #ffffff !important;
-}
-
+.stButton > button * { color: #fff !important; }
 .stButton > button:hover {
-    background: #222222 !important;
+    background: #222 !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.2) !important;
+}
+.stButton > button:active { transform: translateY(0) !important; }
+
+/* ── Secondary / Ghost Button ── */
+.stButton > button[kind="secondary"] {
+    background: #fff !important;
+    color: #0a0a0a !important;
+    border: 1px solid rgba(0,0,0,0.18) !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04) !important;
+}
+.stButton > button[kind="secondary"] * { color: #0a0a0a !important; }
+.stButton > button[kind="secondary"]:hover {
+    background: #f5f5f5 !important;
+    border-color: #0a0a0a !important;
 }
 
-.stButton > button:active {
-    transform: translateY(0) !important;
-}
-
-/* ── Download Buttons ── */
-[data-testid="stDownloadButton"] {
-    margin-top: 0.4rem !important;
-    margin-bottom: 0.6rem !important;
-}
-
+/* ── Download Button ── */
+[data-testid="stDownloadButton"] { margin-bottom: 0.5rem !important; }
 [data-testid="stDownloadButton"] button {
-    background: rgba(255, 255, 255, 0.95) !important;
-    color: #000000 !important;
-    border: 1px solid rgba(0, 0, 0, 0.18) !important;
+    background: #fff !important;
+    color: #0a0a0a !important;
+    border: 1px solid rgba(0,0,0,0.16) !important;
     border-radius: 8px !important;
     font-weight: 700 !important;
     font-size: 0.86rem !important;
-    padding: 0.5rem 1.2rem !important;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02) !important;
+    padding: 0.55rem 1.2rem !important;
+    transition: all 0.18s !important;
 }
-
-[data-testid="stDownloadButton"] button * {
-    color: #000000 !important;
-}
-
+[data-testid="stDownloadButton"] button * { color: #0a0a0a !important; }
 [data-testid="stDownloadButton"] button:hover {
-    background: #ffffff !important;
-    border-color: #000000 !important;
+    border-color: #0a0a0a !important;
     transform: translateY(-1px) !important;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
 }
 
 /* ── Output Box ── */
 .output-box {
-    background: rgba(255, 255, 255, 0.95) !important;
-    backdrop-filter: blur(16px) !important;
-    -webkit-backdrop-filter: blur(16px) !important;
-    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    background: #fff !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
     border-radius: 10px !important;
     padding: 1.2rem 1.4rem !important;
     font-family: 'JetBrains Mono', monospace !important;
-    font-size: 0.82rem !important;
-    color: #000000 !important;
-    line-height: 1.7 !important;
-    min-height: 280px !important;
-    max-height: 520px !important;
+    font-size: 0.81rem !important;
+    color: #0a0a0a !important;
+    line-height: 1.75 !important;
+    min-height: 260px !important;
+    max-height: 540px !important;
     overflow-y: auto !important;
     white-space: pre-wrap !important;
     word-break: break-word !important;
-    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.02) !important;
+    box-shadow: inset 0 1px 4px rgba(0,0,0,0.02) !important;
     margin-bottom: 0.6rem !important;
 }
+.output-box::-webkit-scrollbar { width: 5px; }
+.output-box::-webkit-scrollbar-track { background: rgba(0,0,0,0.02); border-radius: 3px; }
+.output-box::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
 
-.output-box::-webkit-scrollbar { width: 4px; }
-.output-box::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.02); border-radius: 2px; }
-.output-box::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.18); border-radius: 2px; }
-
-/* ── Section Headers ── */
-.section-header {
-    font-size: 0.95rem !important;
-    font-weight: 800 !important;
-    color: #000000 !important;
-    margin: 0 0 0.8rem 0 !important;
-    padding-bottom: 0.4rem !important;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-    letter-spacing: -0.01em !important;
+/* ── Chips ── */
+.chip {
+    display: inline-block;
+    background: rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.09);
+    border-radius: 20px;
+    padding: 0.18rem 0.65rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #0a0a0a !important;
+    margin: 2px;
 }
-
-/* ── Chips / Tags ── */
-.metric-row {
-    display: flex !important;
-    gap: 0.35rem !important;
-    flex-wrap: wrap !important;
-    margin-bottom: 0.7rem !important;
+.chip-match {
+    background: rgba(0,0,0,0.05);
+    border-color: rgba(0,0,0,0.15);
+    color: #0a0a0a !important;
 }
-
-.metric-chip {
-    background: rgba(0, 0, 0, 0.04) !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    border-radius: 12px !important;
-    padding: 0.2rem 0.65rem !important;
-    font-size: 0.76rem !important;
-    color: #000000 !important;
-    font-weight: 600 !important;
+.chip-miss {
+    background: rgba(200,30,30,0.06);
+    border-color: rgba(200,30,30,0.2);
+    color: #7f1d1d !important;
 }
-
-.chip-matched {
-    background: rgba(0, 0, 0, 0.05) !important;
-    border: 1px solid rgba(0, 0, 0, 0.15) !important;
-    color: #000000 !important;
-    padding: 0.2rem 0.65rem !important;
-    border-radius: 12px !important;
-    font-size: 0.76rem !important;
-    font-weight: 700 !important;
-    display: inline-block !important;
-    margin: 2px !important;
-}
-
-.chip-missing {
-    background: rgba(220, 38, 38, 0.06) !important;
-    border: 1px solid rgba(220, 38, 38, 0.2) !important;
-    color: #991b1b !important;
-    padding: 0.2rem 0.65rem !important;
-    border-radius: 12px !important;
-    font-size: 0.76rem !important;
-    font-weight: 700 !important;
-    display: inline-block !important;
-    margin: 2px !important;
+.chip-meta {
+    background: rgba(0,0,0,0.03);
+    border-color: rgba(0,0,0,0.06);
+    color: #555 !important;
 }
 
 /* ── Score Badge ── */
 .score-badge {
-    display: inline-flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    background: #000000 !important;
-    color: #ffffff !important;
-    font-weight: 900 !important;
-    font-size: 1.35rem !important;
-    padding: 0.5rem 1.1rem !important;
-    border-radius: 12px !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #0a0a0a;
+    color: #fff !important;
+    font-size: 1.4rem;
+    font-weight: 900;
+    letter-spacing: -0.03em;
+    padding: 0.6rem 1.2rem;
+    border-radius: 12px;
+    min-width: 88px;
+}
+.score-badge.good { background: #0a0a0a; }
+.score-badge.warn { background: #92400e; }
+.score-badge.low  { background: #7f1d1d; }
+
+/* ── Stat row inside profile ── */
+.stat-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 0.8rem 0;
+}
+.stat-item {
+    background: rgba(0,0,0,0.03);
+    border: 1px solid rgba(0,0,0,0.07);
+    border-radius: 10px;
+    padding: 0.6rem 1rem;
+    flex: 1;
+    min-width: 80px;
+    text-align: center;
+}
+.stat-item-num {
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: #0a0a0a !important;
+    letter-spacing: -0.02em;
+    display: block;
+}
+.stat-item-label {
+    font-size: 0.7rem;
+    color: #777 !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    display: block;
 }
 
-/* ── Status Indicator ── */
-.status-pill {
-    background: rgba(0, 0, 0, 0.05) !important;
-    border: 1px solid rgba(0, 0, 0, 0.1) !important;
-    color: #000000 !important;
-    padding: 0.22rem 0.75rem !important;
-    border-radius: 16px !important;
-    font-size: 0.8rem !important;
-    font-weight: 700 !important;
-    display: inline-block !important;
-}
-
-/* ── Sidebar Stats ── */
+/* ── Sidebar stat ── */
 .sidebar-stat {
-    background: rgba(0, 0, 0, 0.03) !important;
-    border: 1px solid rgba(0, 0, 0, 0.06) !important;
-    border-radius: 10px !important;
-    padding: 0.65rem 0.9rem !important;
-    margin-bottom: 0.4rem !important;
-    color: #000000 !important;
-    font-size: 0.85rem !important;
+    background: rgba(0,0,0,0.025);
+    border: 1px solid rgba(0,0,0,0.06);
+    border-radius: 8px;
+    padding: 0.55rem 0.85rem;
+    margin-bottom: 0.35rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.sidebar-stat-label { font-size: 0.8rem; color: #555 !important; font-weight: 500; }
+.sidebar-stat-value { font-size: 0.85rem; font-weight: 800; color: #0a0a0a !important; }
+
+/* ── Status pill ── */
+.pill {
+    display: inline-block;
+    padding: 0.2rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.76rem;
+    font-weight: 700;
+}
+.pill-active { background: rgba(0,0,0,0.08); border: 1px solid rgba(0,0,0,0.15); color: #0a0a0a !important; }
+.pill-idle { background: rgba(0,0,0,0.03); border: 1px solid rgba(0,0,0,0.08); color: #777 !important; }
+
+/* ── Chat ── */
+.chat-wrap { display: flex; flex-direction: column; gap: 0.7rem; margin-bottom: 1rem; }
+.bubble-user {
+    background: #0a0a0a;
+    color: #fff !important;
+    padding: 0.85rem 1.1rem;
+    border-radius: 14px 14px 4px 14px;
+    max-width: 78%;
+    align-self: flex-end;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    font-weight: 500;
+}
+.bubble-user * { color: #fff !important; }
+.bubble-ai {
+    background: rgba(255,255,255,0.96);
+    border: 1px solid rgba(0,0,0,0.08);
+    color: #0a0a0a !important;
+    padding: 1rem 1.2rem;
+    border-radius: 14px 14px 14px 4px;
+    max-width: 88%;
+    align-self: flex-start;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.03);
+}
+.bubble-ai * { color: #0a0a0a !important; }
+
+/* ── Quick prompt button strip ── */
+.prompt-btn { margin-bottom: 0.4rem !important; }
+.prompt-btn .stButton > button {
+    background: rgba(0,0,0,0.04) !important;
+    color: #0a0a0a !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+    box-shadow: none !important;
+    font-size: 0.83rem !important;
     font-weight: 600 !important;
+    padding: 0.5rem 1rem !important;
+}
+.prompt-btn .stButton > button:hover {
+    background: rgba(0,0,0,0.08) !important;
+    border-color: rgba(0,0,0,0.2) !important;
+    transform: none !important;
 }
 
-/* ── Chat Messages ── */
-.chat-bubble-user {
-    background: #000000 !important;
-    color: #ffffff !important;
-    padding: 0.9rem 1.2rem !important;
-    border-radius: 16px 16px 4px 16px !important;
-    margin: 0.5rem 0 0.5rem auto !important;
-    max-width: 80% !important;
-    font-size: 0.9rem !important;
-    line-height: 1.5 !important;
-    font-weight: 500 !important;
-}
-
-.chat-bubble-user * {
-    color: #ffffff !important;
-}
-
-.chat-bubble-ai {
-    background: rgba(255, 255, 255, 0.95) !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    color: #000000 !important;
-    padding: 1.1rem 1.4rem !important;
-    border-radius: 16px 16px 16px 4px !important;
-    margin: 0.5rem auto 0.5rem 0 !important;
-    max-width: 88% !important;
-    font-size: 0.9rem !important;
-    line-height: 1.65 !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02) !important;
-}
-
-.chat-bubble-ai * {
-    color: #000000 !important;
-}
-
-/* ── File Uploader ── */
+/* ── File uploader ── */
 [data-testid="stFileUploader"] {
-    background: rgba(255, 255, 255, 0.75) !important;
-    border: 1px dashed rgba(0, 0, 0, 0.18) !important;
-    border-radius: 14px !important;
-    padding: 1rem !important;
+    background: rgba(255,255,255,0.8) !important;
+    border: 1.5px dashed rgba(0,0,0,0.16) !important;
+    border-radius: 12px !important;
+    transition: border-color 0.2s !important;
+}
+[data-testid="stFileUploader"]:hover {
+    border-color: rgba(0,0,0,0.35) !important;
 }
 
 /* ── Expanders ── */
 [data-testid="stExpander"] {
-    background: rgba(255, 255, 255, 0.85) !important;
-    backdrop-filter: blur(14px) !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    border-radius: 12px !important;
+    background: rgba(255,255,255,0.88) !important;
+    border: 1px solid rgba(0,0,0,0.08) !important;
+    border-radius: 10px !important;
+    margin-bottom: 0.5rem !important;
+}
+[data-testid="stExpander"] summary {
+    font-weight: 600 !important;
+    font-size: 0.86rem !important;
 }
 
-/* ── Divider & Separators ── */
+/* ── Alerts ── */
+[data-testid="stAlert"] {
+    background: rgba(255,255,255,0.95) !important;
+    border: 1px solid rgba(0,0,0,0.09) !important;
+    border-radius: 10px !important;
+    font-size: 0.86rem !important;
+}
+[data-testid="stAlert"] * { font-size: 0.86rem !important; }
+
+/* ── Divider ── */
 hr {
     margin: 1rem 0 !important;
     border: none !important;
-    border-top: 1px solid rgba(0, 0, 0, 0.07) !important;
+    border-top: 1px solid rgba(0,0,0,0.07) !important;
 }
+
+/* ── Match job card ── */
+.job-card {
+    background: rgba(255,255,255,0.9);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 12px;
+    padding: 1.1rem 1.3rem;
+    margin-bottom: 0.8rem;
+    transition: box-shadow 0.2s, border-color 0.2s;
+}
+.job-card:hover {
+    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+    border-color: rgba(0,0,0,0.15);
+}
+.job-title { font-size: 1rem; font-weight: 800; color: #0a0a0a !important; margin-bottom: 0.15rem; }
+.job-meta { font-size: 0.8rem; color: #555 !important; font-weight: 500; margin-bottom: 0.5rem; }
+.job-summary { font-size: 0.82rem; color: #333 !important; line-height: 1.5; margin-bottom: 0.6rem; }
+
+/* ── Spinner and success ── */
+.stSpinner { opacity: 0.7; }
 </style>
 """, unsafe_allow_html=True)
 
 
-# ─────────────────────────────────────────────
-# Helper: File Text Extraction (PDF, DOCX, TXT)
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
+# Helpers
+# ─────────────────────────────────────────────────────────────
 def extract_text_from_file(uploaded_file) -> str:
-    """Extract plain text from uploaded PDF, DOCX, or TXT file."""
     filename = uploaded_file.name.lower()
-    content = ""
     try:
         if filename.endswith(".pdf"):
             import pypdf
-            pdf_reader = pypdf.PdfReader(uploaded_file)
-            extracted = []
-            for page in pdf_reader.pages:
-                t = page.extract_text()
-                if t:
-                    extracted.append(t)
-            content = "\n".join(extracted)
-
+            reader = pypdf.PdfReader(uploaded_file)
+            return "\n".join(p.extract_text() or "" for p in reader.pages).strip()
         elif filename.endswith(".docx"):
             import docx
             doc = docx.Document(io.BytesIO(uploaded_file.read()))
-            extracted = [p.text for p in doc.paragraphs if p.text.strip()]
-            content = "\n".join(extracted)
-
+            return "\n".join(p.text for p in doc.paragraphs if p.text.strip()).strip()
         else:
             raw = uploaded_file.read()
-            try:
-                content = raw.decode("utf-8")
-            except UnicodeDecodeError:
-                content = raw.decode("latin-1", errors="ignore")
-
+            return raw.decode("utf-8", errors="replace").strip()
     except Exception as e:
-        raise ValueError(f"Error reading {filename}: {e}")
-
-    return content.strip()
+        raise ValueError(f"Could not read {filename}: {e}")
 
 
-# ─────────────────────────────────────────────
-# Helper: Gemini Direct REST API Call
-# ─────────────────────────────────────────────
-def call_gemini(system_instruction: str, prompt: str, temperature: float, api_key: str, model: str = "gemini-3.5-flash") -> str:
-    """Calls Google Gemini API using direct REST endpoints with multi-model fallback."""
+def call_gemini(system: str, prompt: str, temp: float, api_key: str, model: str = "gemini-2.0-flash") -> str:
     import requests
-
-    api_key = api_key.strip() if api_key else ""
-    if not api_key:
-        raise ValueError("API key is missing. Please enter your Gemini API key in the sidebar.")
-
-    candidate_models = [model, "gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-flash-latest", "gemini-3.7-flash"]
-    seen = set()
-    models_to_try = [m for m in candidate_models if not (m in seen or seen.add(m))]
+    if not api_key or not api_key.strip():
+        raise ValueError("API key missing.")
+    candidates = [model, "gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.0-flash-lite", "gemini-3.5-flash", "gemini-flash-latest"]
+    seen, tried = set(), []
     errors = []
-
-    for m in models_to_try:
+    for m in candidates:
+        if m in seen: continue
+        seen.add(m)
         try:
-            url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key}"
+            url = f"https://generativelanguage.googleapis.com/v1beta/models/{m}:generateContent?key={api_key.strip()}"
             payload = {
                 "contents": [{"parts": [{"text": prompt}]}],
-                "systemInstruction": {"parts": [{"text": system_instruction}]},
-                "generationConfig": {"temperature": temperature},
+                "systemInstruction": {"parts": [{"text": system}]},
+                "generationConfig": {"temperature": temp},
             }
-            resp = requests.post(
-                url,
-                headers={"Content-Type": "application/json"},
-                data=json.dumps(payload),
-                timeout=60,
-            )
-            if resp.status_code == 200:
-                data = resp.json()
-                candidates = data.get("candidates", [])
-                if candidates:
-                    parts = candidates[0].get("content", {}).get("parts", [])
-                    if parts and "text" in parts[0]:
-                        return parts[0]["text"].strip()
-                errors.append(f"{m}: Empty response")
+            r = requests.post(url, headers={"Content-Type": "application/json"}, data=json.dumps(payload), timeout=60)
+            if r.status_code == 200:
+                data = r.json()
+                parts = data.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+                if parts and "text" in parts[0]:
+                    return parts[0]["text"].strip()
+                errors.append(f"{m}: empty response")
             else:
-                try:
-                    err_msg = resp.json().get("error", {}).get("message", resp.text)
-                except Exception:
-                    err_msg = resp.text
-                errors.append(f"{m} (HTTP {resp.status_code}): {err_msg}")
-        except Exception as err:
-            errors.append(f"{m}: {err}")
-
-    raise RuntimeError("Generation failed. Details:\n" + "\n".join(errors[-4:]))
+                try: msg = r.json().get("error", {}).get("message", r.text[:120])
+                except: msg = r.text[:120]
+                errors.append(f"{m} ({r.status_code}): {msg}")
+        except Exception as e:
+            errors.append(f"{m}: {e}")
+    raise RuntimeError("All models failed:\n" + "\n".join(errors[-4:]))
 
 
-# ─────────────────────────────────────────────
-# AI Pipeline Functions
-# ─────────────────────────────────────────────
-def parse_resume_with_ai(resume_text: str, api_key: str, model: str = "gemini-3.5-flash") -> dict:
-    """Parse raw resume text into validated, structured profile."""
-    system_instruction = (
-        "You are an expert Resume Parser and ATS Auditor. "
-        "Analyze the resume and return ONLY a valid JSON object matching the exact schema."
-    )
-    prompt = f"""Extract and structure all information from this resume into the JSON format below.
+def parse_resume_ai(text: str, api_key: str, model: str) -> dict:
+    system = "Expert Resume Parser and ATS Auditor. Return ONLY valid JSON, no markdown."
+    prompt = f"""Parse this resume into structured JSON.
 
-Resume Text:
-\"\"\"{resume_text[:6000]}\"\"\"
+Resume:
+\"\"\"{text[:5500]}\"\"\"
 
-Respond ONLY with valid JSON (no markdown):
+Return ONLY this JSON:
 {{
-  "name": "Candidate Full Name",
+  "name": "Full Name",
   "target_role": "Target Role",
-  "contact": {{
-    "email": "email or N/A",
-    "phone": "phone or N/A",
-    "location": "location or N/A"
-  }},
-  "ats_score": 85,
-  "summary": "3-sentence professional summary.",
-  "skills": {{
-    "core_technical": ["Skill 1", "Skill 2"],
-    "frameworks_tools": ["Tool 1", "Tool 2"],
-    "soft_skills": ["Skill 1", "Skill 2"]
-  }},
-  "experience": [
-    {{
-      "role": "Job Title",
-      "company": "Company Name",
-      "duration": "Dates",
-      "highlights": ["Achievement 1", "Achievement 2"]
-    }}
-  ],
-  "education": [
-    {{
-      "degree": "Degree",
-      "institution": "University",
-      "year": "Year"
-    }}
-  ],
-  "strengths": ["Strength 1", "Strength 2"],
-  "ats_improvements": ["Improvement 1", "Improvement 2"]
-}}
-"""
-    raw_response = call_gemini(system_instruction, prompt, temperature=0.1, api_key=api_key, model=model)
-    clean_json = raw_response
-    if "```json" in clean_json:
-        clean_json = clean_json.split("```json")[1].split("```")[0].strip()
-    elif "```" in clean_json:
-        clean_json = clean_json.split("```")[1].split("```")[0].strip()
-
+  "contact": {{"email":"","phone":"","location":""}},
+  "ats_score": 82,
+  "summary": "3-sentence summary.",
+  "skills": {{"technical":["Skill1"],"tools":["Tool1"],"soft":["Skill1"]}},
+  "experience": [{{"role":"","company":"","duration":"","highlights":["Achievement"]}}],
+  "education": [{{"degree":"","institution":"","year":""}}],
+  "certifications": [],
+  "ats_improvements": ["Tip 1","Tip 2"]
+}}"""
+    raw = call_gemini(system, prompt, 0.1, api_key, model)
+    clean = raw
+    if "```json" in clean: clean = clean.split("```json")[1].split("```")[0].strip()
+    elif "```" in clean: clean = clean.split("```")[1].split("```")[0].strip()
     try:
-        return json.loads(clean_json)
-    except Exception:
+        return json.loads(clean)
+    except:
         return {
-            "name": "Candidate",
-            "target_role": "Software Professional",
-            "contact": {"email": "Extracted", "phone": "N/A", "location": "N/A"},
-            "ats_score": 80,
-            "summary": clean_json[:300],
-            "skills": {"core_technical": ["Python", "Engineering"], "frameworks_tools": ["Git", "REST APIs"], "soft_skills": ["Communication"]},
-            "experience": [{"role": "Professional Experience", "company": "Company", "duration": "Recent", "highlights": [clean_json[:200]]}],
+            "name": "Candidate", "target_role": "Professional",
+            "contact": {"email": "N/A", "phone": "N/A", "location": "N/A"},
+            "ats_score": 75, "summary": clean[:250],
+            "skills": {"technical": ["Python"], "tools": ["Git"], "soft": ["Communication"]},
+            "experience": [{"role": "Experience", "company": "Company", "duration": "Recent", "highlights": [clean[:150]]}],
             "education": [{"degree": "Degree", "institution": "University", "year": "Recent"}],
-            "strengths": ["Project Experience"],
-            "ats_improvements": ["Quantify achievements with metrics."]
+            "certifications": [], "ats_improvements": ["Add metrics to achievements."]
         }
 
 
-DEFAULT_JOB_CORPUS = [
-    {
-        "id": "job_1",
-        "title": "Generative AI Engineer",
-        "company": "AI Labs",
-        "domain": "AI / ML",
-        "skills_required": ["Python", "Google Gemini API", "LLMs", "RAG", "Prompt Engineering", "Vector DBs", "FastAPI", "Docker"],
-        "description": "Build high-throughput RAG systems, integrate multi-modal LLM APIs, and deploy AI applications."
-    },
-    {
-        "id": "job_2",
-        "title": "Full Stack Developer",
-        "company": "CloudScale",
-        "domain": "Web Engineering",
-        "skills_required": ["Python", "React", "TypeScript", "FastAPI", "PostgreSQL", "REST APIs", "Docker", "Git"],
-        "description": "Design responsive web apps, construct high-performance REST APIs, and manage databases."
-    },
-    {
-        "id": "job_3",
-        "title": "Data Scientist",
-        "company": "Apex Analytics",
-        "domain": "Data Science",
-        "skills_required": ["Python", "SQL", "Pandas", "Scikit-Learn", "TensorFlow", "Statistics", "Machine Learning"],
-        "description": "Analyze large datasets, develop predictive models, and deploy machine learning pipelines."
-    },
-    {
-        "id": "job_4",
-        "title": "Cloud DevOps Architect",
-        "company": "Nebula Cloud",
-        "domain": "Infrastructure",
-        "skills_required": ["AWS", "Docker", "Kubernetes", "CI/CD", "Terraform", "Linux", "Python", "Security"],
-        "description": "Maintain cloud infrastructure, automate deployment pipelines, and implement observability."
-    },
-    {
-        "id": "job_5",
-        "title": "Frontend Engineer",
-        "company": "Interface Labs",
-        "domain": "Frontend",
-        "skills_required": ["React", "Next.js", "JavaScript", "TypeScript", "CSS", "REST APIs", "UI/UX", "Git"],
-        "description": "Craft high-performance web user interfaces with clean architecture and responsive design."
-    }
+JOB_CORPUS = [
+    {"id": "j1", "title": "Generative AI Engineer", "company": "AI Labs", "domain": "AI / ML",
+     "skills": ["Python","LLMs","RAG","Gemini API","Prompt Engineering","Vector DB","FastAPI","Docker"],
+     "desc": "Build production RAG systems, integrate LLM APIs, and deploy intelligent AI applications at scale."},
+    {"id": "j2", "title": "Full Stack Developer", "company": "CloudScale", "domain": "Web Engineering",
+     "skills": ["Python","React","TypeScript","FastAPI","PostgreSQL","REST APIs","Docker","Git"],
+     "desc": "Design responsive applications, build high-performance APIs, and lead end-to-end product development."},
+    {"id": "j3", "title": "Data Scientist", "company": "Apex Analytics", "domain": "Data Science",
+     "skills": ["Python","SQL","Pandas","Scikit-Learn","TensorFlow","Statistics","Machine Learning","Spark"],
+     "desc": "Analyze large datasets, develop predictive models, and produce actionable business insights."},
+    {"id": "j4", "title": "Cloud & DevOps Architect", "company": "Nebula Cloud", "domain": "Infrastructure",
+     "skills": ["AWS","Docker","Kubernetes","CI/CD","Terraform","Linux","Python","Monitoring","IaC"],
+     "desc": "Design resilient cloud infrastructure, automate deployments, and implement observability."},
+    {"id": "j5", "title": "Frontend Engineer", "company": "Interface Labs", "domain": "Frontend",
+     "skills": ["React","Next.js","JavaScript","TypeScript","CSS","UI/UX","REST APIs","Git","Figma"],
+     "desc": "Craft performant, accessible web experiences with modern frameworks and design systems."},
 ]
 
 
-def match_resume_to_jobs(parsed_profile: dict, job_list: list, api_key: str, model: str = "gemini-3.5-flash") -> list:
-    """Match candidate profile against job corpus and compute match scores."""
-    profile_summary = f"Candidate Target Role: {parsed_profile.get('target_role', '')}\nSkills: {json.dumps(parsed_profile.get('skills', {}))}\nSummary: {parsed_profile.get('summary', '')}"
-    jobs_summary = json.dumps([{"id": j["id"], "title": j["title"], "company": j["company"], "skills_required": j["skills_required"]} for j in job_list])
+def match_jobs(profile: dict, jobs: list, api_key: str, model: str) -> list:
+    p_summary = f"Role: {profile.get('target_role')}\nSkills: {json.dumps(profile.get('skills',{}))}\nSummary: {profile.get('summary','')}"
+    j_list = json.dumps([{"id": j["id"], "title": j["title"], "skills": j.get("skills", j.get("skills_required", []))} for j in jobs])
+    system = "AI Talent Matcher. Return ONLY a JSON array."
+    prompt = f"""Candidate:
+{p_summary}
 
-    system_instruction = "Calculate semantic match score (0-100%) between candidate profile and each job. Return ONLY valid JSON array."
-    prompt = f"Candidate Profile:\n{profile_summary}\n\nJobs List:\n{jobs_summary}\n\nRespond ONLY with JSON array:\n[{{\"id\": \"job_id\", \"match_score\": 85, \"matched_skills\": [\"Skill 1\"], \"missing_skills\": [\"Skill 2\"], \"fit_summary\": \"Assessment.\"}}]"
+Jobs:
+{j_list}
 
-    raw = call_gemini(system_instruction, prompt, temperature=0.1, api_key=api_key, model=model)
-    clean_json = raw
-    if "```json" in clean_json:
-        clean_json = clean_json.split("```json")[1].split("```")[0].strip()
-    elif "```" in clean_json:
-        clean_json = clean_json.split("```")[1].split("```")[0].strip()
-
-    try:
-        scores = json.loads(clean_json)
-        score_dict = {s["id"]: s for s in scores}
-    except Exception:
-        score_dict = {}
-
+Return JSON array only:
+[{{"id":"j1","match_score":85,"matched_skills":["Skill"],"missing_skills":["Skill"],"fit_summary":"One sentence."}}]"""
+    raw = call_gemini(system, prompt, 0.1, api_key, model)
+    clean = raw
+    if "```json" in clean: clean = clean.split("```json")[1].split("```")[0].strip()
+    elif "```" in clean: clean = clean.split("```")[1].split("```")[0].strip()
+    try: score_map = {s["id"]: s for s in json.loads(clean)}
+    except: score_map = {}
     results = []
-    for job in job_list:
-        jid = job["id"]
-        if jid in score_dict:
-            res = {**job, **score_dict[jid]}
+    for j in jobs:
+        jid = j["id"]
+        j_skills = j.get("skills", j.get("skills_required", []))
+        if jid in score_map:
+            results.append({**j, **score_map[jid]})
         else:
-            cand_skills = set(
-                [s.lower() for s in parsed_profile.get("skills", {}).get("core_technical", [])] +
-                [s.lower() for s in parsed_profile.get("skills", {}).get("frameworks_tools", [])]
-            )
-            job_skills = job.get("skills_required", [])
-            matched = [s for s in job_skills if s.lower() in cand_skills]
-            missing = [s for s in job_skills if s.lower() not in cand_skills]
-            score = int((len(matched) / max(len(job_skills), 1)) * 100)
-            res = {
-                **job,
-                "match_score": score,
-                "matched_skills": matched,
-                "missing_skills": missing,
-                "fit_summary": f"Matches {len(matched)} of {len(job_skills)} key requirements."
-            }
-        results.append(res)
-
+            c_skills = set(s.lower() for cat in profile.get("skills", {}).values() for s in cat)
+            matched = [s for s in j_skills if s.lower() in c_skills]
+            missing = [s for s in j_skills if s.lower() not in c_skills]
+            score = int(len(matched) / max(len(j_skills), 1) * 100)
+            results.append({**j, "match_score": score, "matched_skills": matched,
+                             "missing_skills": missing, "fit_summary": f"Matches {len(matched)}/{len(j_skills)} requirements."})
     results.sort(key=lambda x: x.get("match_score", 0), reverse=True)
     return results
 
 
-def generate_cv_suggestions(parsed_profile: dict, target_job: dict, api_key: str, model: str = "gemini-3.5-flash") -> str:
-    """Generate tailored CV suggestions and optimized content."""
-    system_instruction = "You are an Executive Resume Strategist. Provide actionable, high-impact CV optimization tailored to the target job."
-    prompt = f"""Candidate Profile:\n{json.dumps(parsed_profile, indent=2)}\n\nTarget Job:\nRole: {target_job.get('title')} at {target_job.get('company')}\nRequired: {', '.join(target_job.get('skills_required', []))}\nDescription: {target_job.get('description', '')}
+def generate_cv_suggestions(profile: dict, job: dict, api_key: str, model: str) -> str:
+    j_skills = job.get("skills", job.get("skills_required", []))
+    system = "Executive Resume Strategist and Career Coach. Write actionable, high-impact CV optimization."
+    prompt = f"""Candidate Profile:
+{json.dumps(profile, indent=2)}
 
-Provide structured recommendations using '━━━' dividers:
+Target: {job.get('title')} at {job.get('company')}
+Required Skills: {', '.join(j_skills)}
+Description: {job.get('desc', job.get('description', ''))}
+
+Structure your response clearly:
 
 1. TARGETED PROFESSIONAL SUMMARY
-Polished 3-4 sentence summary tailored for {target_job.get('title')}.
+Write a polished 3-4 sentence summary tailored to this role.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 2. MISSING KEYWORDS & SKILLS
-High-value technical keywords required for this position.
+List exact ATS keywords missing from the candidate's profile.
 
-3. BULLET POINT REWRITES (XYZ FORMULA)
-3 rewritten experience bullets: 'Accomplished [X] measured by [Y] by doing [Z]'.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-4. ATS READABILITY AUDIT
-3 specific points to pass enterprise ATS filters.
+3. BULLET POINT REWRITES (XYZ Format)
+Rewrite 3 experience bullets using:
+"Accomplished [X] as measured by [Y], by doing [Z]"
+Format:
+  Before: [original bullet]
+  After:  [improved bullet]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+4. ATS AUDIT & COMPLIANCE
+3 specific actions to maximize ATS parsing and interview callback rate.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 5. TAILORED RESUME DRAFT
-Clean text resume preview.
+Full resume preview in clean text format.
 """
-    return call_gemini(system_instruction, prompt, temperature=0.3, api_key=api_key, model=model)
+    return call_gemini(system, prompt, 0.3, api_key, model)
 
 
-def career_mentor_chat(messages: list, candidate_context: str, job_context: str, api_key: str, model: str = "gemini-3.5-flash") -> str:
-    """Grounded career advisor chatbot."""
-    system_instruction = f"""You are SmartGen Career Mentor — a professional career advisor and talent coach.
-Candidate Context: {candidate_context}
-Target Job Context: {job_context}
+def mentor_chat(messages: list, profile_ctx: str, job_ctx: str, api_key: str, model: str) -> str:
+    system = f"""You are SmartGen Career Mentor — an elite executive career advisor, interview coach, and talent strategist.
 
-Provide direct, actionable career coaching, mock interview frameworks, and learning roadmaps. Keep a clean, professional tone without emojis.
+Candidate Context: {profile_ctx}
+Target Role Context: {job_ctx}
+
+Provide direct, actionable coaching without emojis. Use clear structure and formatting.
 """
-    chat_history_str = ""
-    for msg in messages:
-        role = "User" if msg["role"] == "user" else "Advisor"
-        chat_history_str += f"{role}: {msg['content']}\n\n"
-
-    prompt = f"Transcript:\n{chat_history_str}\n\nRespond constructively to the user's latest query."
-    return call_gemini(system_instruction, prompt, temperature=0.5, api_key=api_key, model=model)
+    history = "\n\n".join(f"{'User' if m['role'] == 'user' else 'Advisor'}: {m['content']}" for m in messages)
+    prompt = f"Conversation:\n{history}\n\nRespond to the user's latest message with structured, actionable guidance."
+    return call_gemini(system, prompt, 0.5, api_key, model)
 
 
-def generate_blog(topic: str, tone: str, word_count: int, api_key: str, model: str = "gemini-3.5-flash") -> str:
-    system_instruction = "You are an experienced article writer who crafts clear, insightful, well-structured articles."
-    prompt = f"""Write an article based on:
-- Topic: "{topic}"
-- Tone: {tone}
-- Target Word Count: {word_count} words
+def generate_blog(topic: str, tone: str, words: int, api_key: str, model: str) -> str:
+    system = "Experienced professional writer crafting clear, insightful, well-structured articles."
+    prompt = f"""Write an article:
+Topic: "{topic}"
+Tone: {tone}
+Target words: ~{words}
 
 Structure:
-1. Title: Clean, engaging title.
-2. Introduction: Strong opening hook.
-3. Body Sections: 2-3 focused sections with subheadings.
-4. Conclusion: Clear takeaway or summary.
-"""
-    return call_gemini(system_instruction, prompt, temperature=0.7, api_key=api_key, model=model)
+1. Title (compelling, clean)
+2. Introduction (strong hook)
+3. 2-3 body sections with subheadings
+4. Conclusion with clear takeaway
+
+Write in full paragraphs. No emojis."""
+    return call_gemini(system, prompt, 0.7, api_key, model)
 
 
-def generate_email(recipient: str, purpose: str, tone: str, api_key: str, model: str = "gemini-3.5-flash") -> str:
-    system_instruction = "You are a professional communication specialist who drafts polished, concise emails."
+def generate_email(recipient: str, purpose: str, tone: str, api_key: str, model: str) -> str:
+    system = "Professional communication specialist drafting polished, concise business emails."
     prompt = f"""Write a professional email:
-- Recipient: {recipient}
-- Purpose: {purpose}
-- Tone: {tone}
+Recipient: {recipient}
+Purpose: {purpose}
+Tone: {tone}
 
-Structure:
-1. Subject Line: Concise, direct subject.
-2. Salutation: Appropriate greeting.
-3. Body: Clear message addressing {purpose}.
-4. Sign-off: Professional closing with sender placeholders.
-"""
-    return call_gemini(system_instruction, prompt, temperature=0.3, api_key=api_key, model=model)
+Format:
+Subject: [subject line]
+
+[Salutation],
+
+[Body — clear and concise]
+
+[Professional sign-off],
+[Sender Name]
+[Contact Details]"""
+    return call_gemini(system, prompt, 0.3, api_key, model)
 
 
-def generate_resume(
-    name: str, job_title: str, email: str, phone: str, location: str,
-    summary: str, experience: str, education: str, skills: str,
-    projects: str, certifications: str, api_key: str, model: str = "gemini-3.5-flash"
-) -> str:
-    system_instruction = "You are a professional resume writer crafting ATS-optimized resumes with strong action verbs and quantified achievements."
-    prompt = f"""Build an ATS-friendly resume from these details:
+def generate_resume(name, title, email, phone, location, summary, experience, education, skills, projects, certs, api_key, model) -> str:
+    system = "Expert ATS resume writer. Use strong action verbs and quantified achievements."
+    prompt = f"""Build a professional ATS resume:
 
-Candidate:
-- Name: {name}
-- Target Role: {job_title}
-- Email: {email}
-- Phone: {phone}
-- Location: {location}
+Name: {name}
+Target Role: {title}
+Email: {email} | Phone: {phone} | Location: {location}
 
-Summary: {summary}
+Summary Notes: {summary}
 Experience: {experience}
 Education: {education}
 Skills: {skills}
 Projects: {projects}
-Certifications: {certifications}
+Certifications: {certs}
 
-Formatting:
-1. Header: Name & contact details.
-2. Summary: 3-4 sentence professional summary.
-3. Experience: Reverse-chronological bullet points with action verbs.
-4. Education: Degree, institution, year.
-5. Skills: Categorized.
-6. Projects & Certifications: If provided.
-Use ━━━ section dividers.
+Format rules:
+- Use ━━━ as section dividers
+- Experience: reverse-chronological bullet points with metrics
+- Skills: grouped by category
+- Output plain text only, 1-2 page length
 """
-    return call_gemini(system_instruction, prompt, temperature=0.2, api_key=api_key, model=model)
+    return call_gemini(system, prompt, 0.2, api_key, model)
 
 
-# ─────────────────────────────────────────────
-# Session State Initialization
-# ─────────────────────────────────────────────
-if "blog_history" not in st.session_state:
-    st.session_state.blog_history = []
-if "email_history" not in st.session_state:
-    st.session_state.email_history = []
-if "resume_history" not in st.session_state:
-    st.session_state.resume_history = []
-if "parsed_profile" not in st.session_state:
-    st.session_state.parsed_profile = None
-if "selected_job" not in st.session_state:
-    st.session_state.selected_job = None
-if "cv_suggestions_output" not in st.session_state:
-    st.session_state.cv_suggestions_output = None
-if "mentor_messages" not in st.session_state:
-    st.session_state.mentor_messages = [
-        {"role": "assistant", "content": "Hello. I am your Career Advisor. Upload a resume or select a target job to begin interview preparation, skill roadmapping, or cover letter generation."}
-    ]
-if "total_generated" not in st.session_state:
-    st.session_state.total_generated = 0
+# ─────────────────────────────────────────────────────────────
+# Session State
+# ─────────────────────────────────────────────────────────────
+for k, v in {
+    "blog_history": [], "email_history": [], "resume_history": [],
+    "parsed_profile": None, "selected_job": None, "cv_output": None,
+    "matched_jobs": None,
+    "mentor_messages": [{"role": "assistant", "content": "Hello. I am your Career Advisor. Upload a resume or select a target role to begin — I can help with interview preparation, learning roadmaps, or cover letter drafting."}],
+    "total_ops": 0,
+}.items():
+    if k not in st.session_state:
+        st.session_state[k] = v
 
 
-# ─────────────────────────────────────────────
-# Sidebar — Minimalist Configuration
-# ─────────────────────────────────────────────
+# ─────────────────────────────────────────────────────────────
+# Sidebar
+# ─────────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
-    <div style="padding:1.4rem 0 1.2rem;">
-        <div style="font-size:1.25rem; font-weight:900; color:#000000; letter-spacing:-0.03em;">SmartGen AI</div>
-        <div style="color:#666666; font-size:0.8rem; margin-top:0.2rem; font-weight:500;">
-            Career Intelligence & Content Studio
-        </div>
+    <div style="padding-bottom:1.4rem; border-bottom:1px solid rgba(0,0,0,0.07); margin-bottom:1.2rem;">
+        <div style="font-size:1.1rem;font-weight:900;color:#0a0a0a;letter-spacing:-0.03em;">SmartGen AI</div>
+        <div style="font-size:0.75rem;color:#777;margin-top:0.15rem;font-weight:500;">Career Intelligence & Content Studio</div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("**API Configuration**")
+    st.markdown('<div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#888;margin-bottom:0.5rem;">Configuration</div>', unsafe_allow_html=True)
+
     default_key = ""
     try:
-        if "GEMINI_API_KEY" in st.secrets:
-            default_key = st.secrets["GEMINI_API_KEY"]
-        elif "GOOGLE_API_KEY" in st.secrets:
-            default_key = st.secrets["GOOGLE_API_KEY"]
-    except Exception:
-        pass
+        if "GEMINI_API_KEY" in st.secrets: default_key = st.secrets["GEMINI_API_KEY"]
+        elif "GOOGLE_API_KEY" in st.secrets: default_key = st.secrets["GOOGLE_API_KEY"]
+    except: pass
     if not default_key:
         default_key = os.environ.get("GEMINI_API_KEY") or os.environ.get("GOOGLE_API_KEY", "")
 
-    api_key = st.text_input(
-        "Gemini API Key",
-        type="password",
-        value=default_key,
-        placeholder="Enter API key",
-        help="Google Gemini API Key",
-    )
-
-    model_choice = st.selectbox(
-        "Model",
-        options=["gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-flash-latest", "gemini-3.7-flash"],
-        index=0,
-    )
+    api_key = st.text_input("Gemini API Key", type="password", value=default_key, placeholder="Enter API key…")
+    model_choice = st.selectbox("Model", ["gemini-2.0-flash", "gemini-1.5-flash", "gemini-2.0-flash-lite", "gemini-3.5-flash"], index=0)
 
     if api_key:
-        st.markdown('<div class="status-pill">Key Ready</div>', unsafe_allow_html=True)
+        st.markdown('<div class="pill pill-active" style="margin-top:-0.2rem;margin-bottom:0.8rem;">Key Active</div>', unsafe_allow_html=True)
     else:
         st.caption("Enter API key to enable generation.")
 
-    st.divider()
+    st.markdown('<hr style="margin:1rem 0 0.9rem 0;">', unsafe_allow_html=True)
+    st.markdown('<div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#888;margin-bottom:0.6rem;">Session</div>', unsafe_allow_html=True)
 
-    st.markdown("**Session Overview**")
     has_profile = "Active" if st.session_state.parsed_profile else "None"
-    matched_title = st.session_state.selected_job['title'] if st.session_state.selected_job else "None"
+    target = st.session_state.selected_job.get("title", "None")[:22] if st.session_state.selected_job else "None"
     st.markdown(f"""
-    <div class="sidebar-stat">Profile: <strong>{has_profile}</strong></div>
-    <div class="sidebar-stat">Target: <strong>{matched_title[:20]}</strong></div>
-    <div class="sidebar-stat">Articles: <strong>{len(st.session_state.blog_history)}</strong></div>
-    <div class="sidebar-stat">Emails: <strong>{len(st.session_state.email_history)}</strong></div>
-    <div class="sidebar-stat">Resumes: <strong>{len(st.session_state.resume_history)}</strong></div>
-    <div class="sidebar-stat">Operations: <strong>{st.session_state.total_generated}</strong></div>
+    <div class="sidebar-stat"><span class="sidebar-stat-label">Profile</span><span class="sidebar-stat-value">{has_profile}</span></div>
+    <div class="sidebar-stat"><span class="sidebar-stat-label">Target</span><span class="sidebar-stat-value">{target}</span></div>
+    <div class="sidebar-stat"><span class="sidebar-stat-label">Articles</span><span class="sidebar-stat-value">{len(st.session_state.blog_history)}</span></div>
+    <div class="sidebar-stat"><span class="sidebar-stat-label">Emails</span><span class="sidebar-stat-value">{len(st.session_state.email_history)}</span></div>
+    <div class="sidebar-stat"><span class="sidebar-stat-label">Resumes</span><span class="sidebar-stat-value">{len(st.session_state.resume_history)}</span></div>
+    <div class="sidebar-stat"><span class="sidebar-stat-label">Operations</span><span class="sidebar-stat-value">{st.session_state.total_ops}</span></div>
+    """, unsafe_allow_html=True)
+
+    st.markdown('<hr style="margin:1rem 0 0.9rem 0;">', unsafe_allow_html=True)
+    st.markdown("""
+    <div style="font-size:0.75rem;color:#999;line-height:1.7;">
+        Powered by Google Gemini REST API.<br>
+        Parser → Matcher → Optimizer → Mentor
+    </div>
     """, unsafe_allow_html=True)
 
 
-# ─────────────────────────────────────────────
-# Minimal Editorial Header
-# ─────────────────────────────────────────────
-st.markdown("""
-<div class="hero-banner">
-    <div class="hero-title">SmartGen AI</div>
-    <div class="hero-subtitle">Intelligent Career Intelligence &amp; Content Platform.</div>
+# ─────────────────────────────────────────────────────────────
+# Hero Header
+# ─────────────────────────────────────────────────────────────
+total_blog = len(st.session_state.blog_history)
+total_email = len(st.session_state.email_history)
+total_resume = len(st.session_state.resume_history)
+profile_status = "Loaded" if st.session_state.parsed_profile else "None"
+
+st.markdown(f"""
+<div class="hero">
+    <div class="hero-left">
+        <h1>SmartGen AI</h1>
+        <p>Career Intelligence &amp; Content Studio — Powered by Gemini</p>
+    </div>
+    <div class="hero-right">
+        <div class="hero-stat">
+            <span class="hero-stat-num">{st.session_state.total_ops}</span>
+            <span class="hero-stat-label">Operations</span>
+        </div>
+        <div class="hero-divider"></div>
+        <div class="hero-stat">
+            <span class="hero-stat-num">{total_blog + total_email + total_resume}</span>
+            <span class="hero-stat-label">Generated</span>
+        </div>
+        <div class="hero-divider"></div>
+        <div class="hero-stat">
+            <span class="hero-stat-num">{profile_status}</span>
+            <span class="hero-stat-label">Profile</span>
+        </div>
+    </div>
 </div>
 """, unsafe_allow_html=True)
 
 
-# ─────────────────────────────────────────────
-# Main Navigation Tabs
-# ─────────────────────────────────────────────
-tab_career, tab_blog, tab_email, tab_resume_builder, tab_history = st.tabs([
+# ─────────────────────────────────────────────────────────────
+# Navigation
+# ─────────────────────────────────────────────────────────────
+tab_career, tab_blog, tab_email, tab_resume, tab_history = st.tabs([
     "Career Intelligence",
     "Blog Studio",
     "Email Writer",
@@ -966,780 +955,588 @@ tab_career, tab_blog, tab_email, tab_resume_builder, tab_history = st.tabs([
 ])
 
 
-# ══════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════
 # TAB 1 — CAREER INTELLIGENCE
-# ══════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════
 with tab_career:
-    career_step = st.radio(
-        "Pipeline Step:",
-        options=[
-            "1. Resume Parser",
-            "2. Job Matching",
-            "3. CV Optimization",
-            "4. Career Mentor",
-        ],
+    step = st.radio(
+        "Step:",
+        ["1  —  Resume Parser", "2  —  Job Matching", "3  —  CV Optimizer", "4  —  Career Mentor"],
         horizontal=True,
-        key="career_pipeline_step"
+        key="career_step",
+        label_visibility="collapsed",
     )
+    st.markdown('<hr style="margin:0.6rem 0 1.2rem 0;">', unsafe_allow_html=True)
 
-    st.markdown("---")
+    # ── STEP 1 ─────────────────────────────────────────────────
+    if "1" in step:
+        col_l, col_r = st.columns([1, 1.1], gap="large")
 
-    # ──────────────────────────────────────────
-    # STEP 1: RESUME PARSER
-    # ──────────────────────────────────────────
-    if "1. Resume Parser" in career_step:
-        col_upload, col_profile = st.columns([1, 1], gap="large")
+        with col_l:
+            st.markdown('<div class="section-header">Resume Input</div>', unsafe_allow_html=True)
 
-        with col_upload:
-            st.markdown('<div class="section-header">Resume Document</div>', unsafe_allow_html=True)
+            input_mode = st.radio("Method", ["Upload file", "Paste text"], horizontal=True, key="resume_input_mode")
+            resume_text = ""
 
-            upload_mode = st.radio("Input Method:", ["Upload File (PDF, DOCX, TXT)", "Paste Plain Text"], horizontal=True)
-
-            resume_content = ""
-            if upload_mode == "Upload File (PDF, DOCX, TXT)":
-                uploaded_file = st.file_uploader(
-                    "Select Resume File",
-                    type=["pdf", "docx", "txt"],
-                )
-                if uploaded_file:
+            if input_mode == "Upload file":
+                uf = st.file_uploader("Upload PDF, DOCX, or TXT", type=["pdf", "docx", "txt"], label_visibility="collapsed")
+                if uf:
                     try:
-                        resume_content = extract_text_from_file(uploaded_file)
-                        st.caption(f"Extracted {len(resume_content.split())} words from {uploaded_file.name}")
-                        with st.expander("View Extracted Text"):
-                            st.text(resume_content[:1200] + ("..." if len(resume_content) > 1200 else ""))
+                        resume_text = extract_text_from_file(uf)
+                        st.success(f"Extracted {len(resume_text.split())} words from **{uf.name}**")
+                        with st.expander("Preview extracted text"):
+                            st.text(resume_text[:1500] + ("…" if len(resume_text) > 1500 else ""))
                     except Exception as e:
-                        st.error(f"Error: {e}")
+                        st.error(str(e))
             else:
-                resume_content = st.text_area(
-                    "Resume Text",
-                    placeholder="Paste resume text including contact, skills, experience, and education...",
-                    height=280
-                )
+                resume_text = st.text_area("Paste resume content", placeholder="Paste your full resume text here…", height=260, label_visibility="collapsed")
 
-            parse_btn = st.button("Analyze Resume", use_container_width=True, key="parse_resume_btn")
+            parse_btn = st.button("Analyze Resume", use_container_width=True, key="parse_btn")
 
             if parse_btn:
                 if not api_key:
-                    st.error("Enter Gemini API key in sidebar.")
-                elif not resume_content.strip():
-                    st.warning("Upload a file or paste resume content.")
+                    st.error("Enter your Gemini API key in the sidebar.")
+                elif not resume_text.strip():
+                    st.warning("Provide resume content — upload a file or paste text.")
                 else:
-                    with st.spinner("Analyzing resume and computing ATS readiness…"):
+                    with st.spinner("Parsing resume and computing ATS score…"):
                         try:
-                            start = time.time()
-                            parsed = parse_resume_with_ai(resume_content, api_key=api_key, model=model_choice)
-                            elapsed = round(time.time() - start, 1)
-
-                            st.session_state.parsed_profile = parsed
-                            st.session_state.raw_resume_text = resume_content
-                            st.session_state.total_generated += 1
-                            st.success(f"Resume parsed in {elapsed}s.")
+                            t = time.time()
+                            st.session_state.parsed_profile = parse_resume_ai(resume_text, api_key, model_choice)
+                            st.session_state.total_ops += 1
+                            st.success(f"Parsed in {round(time.time()-t,1)}s — navigate to Step 2 to match jobs.")
                         except Exception as e:
-                            st.error(f"Error: {e}")
+                            st.error(str(e))
 
-        with col_profile:
+        with col_r:
             st.markdown('<div class="section-header">Candidate Profile</div>', unsafe_allow_html=True)
-
-            profile = st.session_state.parsed_profile
-            if profile:
-                ats_score = profile.get("ats_score", 80)
-                col_score, col_meta = st.columns([1, 2])
-                with col_score:
+            p = st.session_state.parsed_profile
+            if p:
+                ats = p.get("ats_score", 80)
+                badge_cls = "good" if ats >= 80 else "warn" if ats >= 60 else "low"
+                c1, c2 = st.columns([1, 2])
+                with c1:
                     st.markdown(f"""
-                    <div style="text-align:center; padding:1.2rem; background:rgba(0,0,0,0.03); border-radius:12px; border:1px solid rgba(0,0,0,0.08);">
-                        <div style="font-size:0.75rem; color:#666666; font-weight:700; text-transform:uppercase;">ATS Readiness</div>
-                        <div class="score-badge" style="margin-top:0.4rem;">{ats_score}%</div>
+                    <div style="text-align:center;padding:1rem;background:rgba(0,0,0,0.03);border-radius:12px;border:1px solid rgba(0,0,0,0.07);">
+                        <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#888;margin-bottom:0.4rem;">ATS Score</div>
+                        <div class="score-badge {badge_cls}">{ats}%</div>
                     </div>
                     """, unsafe_allow_html=True)
-                with col_meta:
+                with c2:
+                    name = p.get("name", "Candidate")
+                    role = p.get("target_role", "")
+                    loc = p.get("contact", {}).get("location", "N/A")
+                    email_c = p.get("contact", {}).get("email", "N/A")
                     st.markdown(f"""
-                    <div style="padding:0.3rem 0;">
-                        <div style="font-size:1.3rem; font-weight:900; color:#000000;">{profile.get('name', 'Candidate')}</div>
-                        <div style="font-size:0.92rem; font-weight:700; color:#333333;">{profile.get('target_role', 'Target Role')}</div>
-                        <div style="font-size:0.8rem; color:#666666; margin-top:0.25rem;">
-                            Location: {profile.get('contact', {}).get('location', 'N/A')} | Email: {profile.get('contact', {}).get('email', 'N/A')}
-                        </div>
+                    <div style="padding:0.2rem 0;">
+                        <div style="font-size:1.15rem;font-weight:900;color:#0a0a0a;letter-spacing:-0.02em;">{name}</div>
+                        <div style="font-size:0.9rem;font-weight:700;color:#333;margin-top:0.1rem;">{role}</div>
+                        <div style="font-size:0.78rem;color:#666;margin-top:0.3rem;">{loc} · {email_c}</div>
                     </div>
                     """, unsafe_allow_html=True)
 
-                st.markdown("---")
-                st.markdown("**Executive Summary**")
-                st.markdown(f"""<div style="font-size:0.88rem; color:#222222; line-height:1.6; background:rgba(255,255,255,0.7); padding:0.8rem; border-radius:10px; border:1px solid rgba(0,0,0,0.06);">{profile.get('summary', 'No summary available.')}</div>""", unsafe_allow_html=True)
+                st.markdown('<hr style="margin:0.8rem 0;">', unsafe_allow_html=True)
 
-                st.markdown("**Extracted Skills**")
-                skills_data = profile.get("skills", {})
-                if isinstance(skills_data, dict):
-                    for cat, s_list in skills_data.items():
-                        cat_title = cat.replace("_", " ").title()
-                        st.markdown(f"<span style='font-size:0.78rem; font-weight:700; color:#444444;'>{cat_title}:</span>", unsafe_allow_html=True)
-                        chips_html = "".join([f"<span class='metric-chip' style='margin:2px;'>{s}</span>" for s in s_list])
-                        st.markdown(f"<div style='margin-bottom:0.5rem;'>{chips_html}</div>", unsafe_allow_html=True)
+                # Summary
+                if p.get("summary"):
+                    st.markdown('<div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#888;margin-bottom:0.4rem;">Summary</div>', unsafe_allow_html=True)
+                    st.markdown(f'<div style="font-size:0.86rem;color:#222;line-height:1.65;background:rgba(0,0,0,0.02);padding:0.8rem 1rem;border-radius:8px;border:1px solid rgba(0,0,0,0.06);">{p["summary"]}</div>', unsafe_allow_html=True)
+                    st.markdown("<br>", unsafe_allow_html=True)
 
-                st.markdown("**Work Experience**")
-                for exp in profile.get("experience", []):
-                    with st.expander(f"{exp.get('role', 'Role')} — {exp.get('company', 'Company')} ({exp.get('duration', 'Dates')})"):
-                        for hl in exp.get("highlights", []):
-                            st.markdown(f"- {hl}")
+                # Skills
+                skills = p.get("skills", {})
+                if skills:
+                    st.markdown('<div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#888;margin-bottom:0.5rem;">Skills</div>', unsafe_allow_html=True)
+                    for cat, items in skills.items():
+                        if not items: continue
+                        label = cat.replace("_", " ").title()
+                        chips = "".join(f'<span class="chip">{s}</span>' for s in items)
+                        st.markdown(f'<div style="margin-bottom:0.5rem;"><span style="font-size:0.74rem;font-weight:700;color:#555;">{label}: </span>{chips}</div>', unsafe_allow_html=True)
+                    st.markdown("<br>", unsafe_allow_html=True)
 
-                if profile.get("ats_improvements"):
-                    st.markdown("**ATS Recommendations**")
-                    for tip in profile.get("ats_improvements", []):
-                        st.markdown(f"- {tip}")
+                # Experience
+                exp_list = p.get("experience", [])
+                if exp_list:
+                    st.markdown('<div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#888;margin-bottom:0.5rem;">Experience</div>', unsafe_allow_html=True)
+                    for exp in exp_list:
+                        label = f"{exp.get('role','Role')} — {exp.get('company','Company')} ({exp.get('duration','Dates')})"
+                        with st.expander(label):
+                            for h in exp.get("highlights", []):
+                                st.markdown(f"- {h}")
+
+                # ATS Tips
+                tips = p.get("ats_improvements", [])
+                if tips:
+                    st.markdown('<div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:#888;margin:0.6rem 0 0.4rem;">ATS Recommendations</div>', unsafe_allow_html=True)
+                    for tip in tips:
+                        st.markdown(f'<div style="font-size:0.83rem;padding:0.4rem 0.7rem;background:rgba(0,0,0,0.025);border-left:2px solid rgba(0,0,0,0.15);border-radius:0 6px 6px 0;margin-bottom:0.3rem;color:#333;">↳ {tip}</div>', unsafe_allow_html=True)
             else:
                 st.markdown("""
-                <div style="text-align:center; padding:4rem 2rem; color:#777777;">
-                    <div style="font-size:0.95rem; font-weight:600;">No Profile Loaded</div>
-                    <div style="font-size:0.82rem; margin-top:0.3rem;">Upload a resume on the left to extract structured candidate data.</div>
+                <div style="text-align:center;padding:5rem 2rem;color:#aaa;">
+                    <div style="font-size:2rem;margin-bottom:0.5rem;opacity:0.3;">↑</div>
+                    <div style="font-size:0.9rem;font-weight:600;color:#888;">No profile loaded</div>
+                    <div style="font-size:0.8rem;margin-top:0.25rem;color:#aaa;">Upload or paste your resume on the left</div>
                 </div>
                 """, unsafe_allow_html=True)
 
-    # ──────────────────────────────────────────
-    # STEP 2: JOB MATCHING
-    # ──────────────────────────────────────────
-    elif "2. Job Matching" in career_step:
-        st.markdown('<div class="section-header">Job Matching & Gap Analysis</div>', unsafe_allow_html=True)
+    # ── STEP 2 ─────────────────────────────────────────────────
+    elif "2" in step:
+        st.markdown('<div class="section-header">Job Matching & Skill Gap Analysis</div>', unsafe_allow_html=True)
 
         if not st.session_state.parsed_profile:
-            st.warning("Parse a resume in Step 1 to match positions.")
+            st.warning("Parse your resume in Step 1 first.")
         else:
-            col_cfg, col_jobs = st.columns([1, 2], gap="large")
+            col_l, col_r = st.columns([1, 1.8], gap="large")
 
-            with col_cfg:
-                st.markdown("**Job Source**")
-                job_source = st.radio(
-                    "Select Source:",
-                    ["Built-in Target Corpus", "Custom Job Posting"],
-                    key="job_source_mode"
-                )
+            with col_l:
+                st.markdown('<div style="font-size:0.78rem;font-weight:700;color:#555;margin-bottom:0.6rem;">Job Source</div>', unsafe_allow_html=True)
+                src = st.radio("Source", ["Built-in Corpus", "Custom Job Description"], key="job_src", label_visibility="collapsed")
 
-                active_jobs = list(DEFAULT_JOB_CORPUS)
-                if job_source == "Custom Job Posting":
-                    c_title = st.text_input("Title", value="Generative AI Engineer")
-                    c_company = st.text_input("Organization", value="Enterprise AI")
-                    c_skills = st.text_input("Key Requirements", value="Python, Gemini API, RAG, Streamlit, Docker")
-                    c_desc = st.text_area("Job Description", height=140, value="Building LLM-powered applications and vector search.")
+                active_jobs = list(JOB_CORPUS)
+                if src == "Custom Job Description":
+                    st.markdown('<hr style="margin:0.5rem 0;">', unsafe_allow_html=True)
+                    c_title = st.text_input("Job Title", placeholder="e.g. AI Engineer", key="cj_title")
+                    c_co = st.text_input("Company", placeholder="e.g. FAANG Corp", key="cj_co")
+                    c_sk = st.text_input("Required Skills (comma-separated)", placeholder="Python, LLMs, FastAPI…", key="cj_sk")
+                    c_desc = st.text_area("Job Description", placeholder="Paste the full JD here…", height=120, key="cj_desc")
+                    if c_title:
+                        active_jobs = [{"id": "cj0", "title": c_title, "company": c_co or "Company",
+                                        "domain": "Custom", "skills": [s.strip() for s in c_sk.split(",") if s.strip()],
+                                        "desc": c_desc}] + JOB_CORPUS
 
-                    custom_job = {
-                        "id": "custom_job_1",
-                        "title": c_title,
-                        "company": c_company,
-                        "domain": "Target Role",
-                        "skills_required": [s.strip() for s in c_skills.split(",") if s.strip()],
-                        "description": c_desc
-                    }
-                    active_jobs = [custom_job] + DEFAULT_JOB_CORPUS
-
-                match_btn = st.button("Match Positions", use_container_width=True, key="run_match_btn")
-
-            with col_jobs:
-                st.markdown("**Ranked Positions**")
-
-                if match_btn or "matched_jobs_list" in st.session_state:
-                    if match_btn:
-                        if not api_key:
-                            st.error("Enter Gemini API key.")
-                        else:
-                            with st.spinner("Calculating semantic alignment…"):
-                                try:
-                                    st.session_state.matched_jobs_list = match_resume_to_jobs(
-                                        st.session_state.parsed_profile,
-                                        active_jobs,
-                                        api_key=api_key,
-                                        model=model_choice
-                                    )
-                                    st.session_state.total_generated += 1
-                                except Exception as e:
-                                    st.error(f"Error: {e}")
-
-                    matched_jobs = st.session_state.get("matched_jobs_list", [])
-                    if matched_jobs:
-                        for idx, job in enumerate(matched_jobs):
-                            score = job.get("match_score", 70)
-                            with st.container():
-                                st.markdown(f"""
-                                <div class="glass-card" style="padding:1.3rem; margin-bottom:0.8rem;">
-                                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                                        <div>
-                                            <div style="font-size:1.1rem; font-weight:800; color:#000000;">{job['title']}</div>
-                                            <div style="font-size:0.85rem; color:#555555; font-weight:600;">{job['company']} — {job.get('domain', 'Industry')}</div>
-                                        </div>
-                                        <div>
-                                            <span style="background:#000000; color:#ffffff; font-weight:800; font-size:1rem; padding:0.35rem 0.8rem; border-radius:10px;">
-                                                {score}% Match
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div style="margin-top:0.6rem; font-size:0.84rem; color:#333333;">
-                                        {job.get('fit_summary', job.get('description', '')[:140])}
-                                    </div>
-                                </div>
-                                """, unsafe_allow_html=True)
-
-                                col_m, col_g, col_act = st.columns([1, 1, 0.8])
-                                with col_m:
-                                    st.markdown("<span style='font-size:0.75rem; font-weight:700;'>Matched:</span>", unsafe_allow_html=True)
-                                    matched_chips = "".join([f"<span class='chip-matched'>{s}</span>" for s in job.get("matched_skills", [])]) or "<span style='font-size:0.75rem; color:#777;'>None</span>"
-                                    st.markdown(matched_chips, unsafe_allow_html=True)
-                                with col_g:
-                                    st.markdown("<span style='font-size:0.75rem; font-weight:700; color:#991b1b;'>Missing:</span>", unsafe_allow_html=True)
-                                    missing_chips = "".join([f"<span class='chip-missing'>{s}</span>" for s in job.get("missing_skills", [])]) or "<span style='font-size:0.75rem;'>None</span>"
-                                    st.markdown(missing_chips, unsafe_allow_html=True)
-                                with col_act:
-                                    if st.button(f"Target Position", key=f"select_job_{job['id']}_{idx}"):
-                                        st.session_state.selected_job = job
-                                        st.success(f"Selected: {job['title']}")
-                                st.markdown("---")
+                if st.button("Match Positions", use_container_width=True, key="match_btn"):
+                    if not api_key:
+                        st.error("Enter API key.")
                     else:
-                        st.caption("Click Match Positions to evaluate fit.")
+                        with st.spinner("Computing semantic match scores…"):
+                            try:
+                                t = time.time()
+                                st.session_state.matched_jobs = match_jobs(st.session_state.parsed_profile, active_jobs, api_key, model_choice)
+                                st.session_state.total_ops += 1
+                                st.success(f"Matched {len(active_jobs)} positions in {round(time.time()-t,1)}s.")
+                            except Exception as e:
+                                st.error(str(e))
 
-    # ──────────────────────────────────────────
-    # STEP 3: CV OPTIMIZATION
-    # ──────────────────────────────────────────
-    elif "3. CV Optimization" in career_step:
+            with col_r:
+                st.markdown('<div style="font-size:0.78rem;font-weight:700;color:#555;margin-bottom:0.6rem;">Ranked Results</div>', unsafe_allow_html=True)
+                matched = st.session_state.matched_jobs
+                if matched:
+                    for i, job in enumerate(matched):
+                        score = job.get("match_score", 0)
+                        badge_cls = "good" if score >= 80 else "warn" if score >= 60 else "low"
+                        j_skills = job.get("skills", job.get("skills_required", []))
+                        matched_s = job.get("matched_skills", [])
+                        missing_s = job.get("missing_skills", [])
+                        fit = job.get("fit_summary", job.get("desc", "")[:120])
+
+                        st.markdown(f"""
+                        <div class="job-card">
+                            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;">
+                                <div>
+                                    <div class="job-title">{job.get('title','')}</div>
+                                    <div class="job-meta">{job.get('company','')} · {job.get('domain','')}</div>
+                                    <div class="job-summary">{fit}</div>
+                                </div>
+                                <div style="flex-shrink:0;">
+                                    <span class="score-badge {badge_cls}" style="font-size:1rem;padding:0.45rem 0.9rem;">{score}%</span>
+                                </div>
+                            </div>
+                            <div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.2rem;">
+                                {"".join(f'<span class="chip chip-match">{s}</span>' for s in matched_s[:6])}
+                                {"".join(f'<span class="chip chip-miss">{s}</span>' for s in missing_s[:4])}
+                            </div>
+                        </div>
+                        """, unsafe_allow_html=True)
+
+                        if st.button(f"Select — {job.get('title','')[:28]}", key=f"sel_{job['id']}_{i}", use_container_width=False):
+                            st.session_state.selected_job = job
+                            st.success(f"Target set: {job.get('title')} — proceed to Step 3.")
+
+                        if i < len(matched) - 1:
+                            st.markdown('<hr style="margin:0 0 0.2rem 0;">', unsafe_allow_html=True)
+                else:
+                    st.markdown("""
+                    <div style="text-align:center;padding:3rem 2rem;color:#aaa;">
+                        <div style="font-size:0.9rem;font-weight:600;color:#888;">No matches yet</div>
+                        <div style="font-size:0.8rem;margin-top:0.2rem;">Click Match Positions to score your profile.</div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+    # ── STEP 3 ─────────────────────────────────────────────────
+    elif "3" in step:
         st.markdown('<div class="section-header">CV Optimization & Bullet Rewriter</div>', unsafe_allow_html=True)
 
         if not st.session_state.parsed_profile:
-            st.warning("Parse a resume in Step 1 to optimize.")
+            st.warning("Parse resume in Step 1 first.")
         else:
-            col_target, col_out = st.columns([1, 1.4], gap="large")
+            col_l, col_r = st.columns([1, 1.5], gap="large")
 
-            with col_target:
-                st.markdown("**Target Position**")
-                job_options = [j["title"] + f" ({j['company']})" for j in DEFAULT_JOB_CORPUS]
+            with col_l:
+                st.markdown('<div style="font-size:0.78rem;font-weight:700;color:#555;margin-bottom:0.6rem;">Target Position</div>', unsafe_allow_html=True)
+
+                job_opts = [f"{j['title']} — {j['company']}" for j in JOB_CORPUS]
                 sel_idx = 0
                 if st.session_state.selected_job:
-                    cur_title = st.session_state.selected_job["title"]
-                    for i, opt in enumerate(job_options):
-                        if cur_title in opt:
-                            sel_idx = i
-                            break
+                    cur = st.session_state.selected_job.get("title", "")
+                    for i, o in enumerate(job_opts):
+                        if cur in o: sel_idx = i; break
 
-                chosen_opt = st.selectbox("Position", job_options, index=sel_idx)
-                selected_job_obj = DEFAULT_JOB_CORPUS[0]
-                for j in DEFAULT_JOB_CORPUS:
-                    if j["title"] in chosen_opt:
-                        selected_job_obj = j
+                chosen = st.selectbox("Position", job_opts, index=sel_idx, label_visibility="collapsed")
+                target_job = JOB_CORPUS[0]
+                for j in JOB_CORPUS:
+                    if j["title"] in chosen:
+                        target_job = j
                         break
-
                 if st.session_state.selected_job:
-                    selected_job_obj = st.session_state.selected_job
+                    target_job = st.session_state.selected_job
 
+                j_skills = target_job.get("skills", target_job.get("skills_required", []))
                 st.markdown(f"""
-                <div class="glass-card" style="padding:1.1rem; margin-top:0.5rem;">
-                    <div style="font-weight:800; font-size:1rem;">{selected_job_obj['title']}</div>
-                    <div style="color:#555555; font-size:0.82rem;">{selected_job_obj['company']}</div>
-                    <div style="margin-top:0.5rem; font-size:0.78rem; color:#333333;">
-                        <strong>Requirements:</strong> {', '.join(selected_job_obj.get('skills_required', []))}
-                    </div>
+                <div class="info-panel">
+                    <div class="info-panel-label">Selected Role</div>
+                    <div class="info-panel-value" style="font-size:0.95rem;font-weight:800;">{target_job.get('title','')}</div>
+                    <div style="font-size:0.8rem;color:#555;margin-top:0.15rem;">{target_job.get('company','')}</div>
+                    <div style="margin-top:0.6rem;">{"".join(f'<span class="chip chip-meta">{s}</span>' for s in j_skills[:8])}</div>
                 </div>
                 """, unsafe_allow_html=True)
 
-                generate_sugg_btn = st.button("Optimize CV", use_container_width=True, key="gen_cv_sugg_btn")
-
-            with col_out:
-                st.markdown('<div class="section-header">Optimization Plan</div>', unsafe_allow_html=True)
-
-                if generate_sugg_btn:
+                if st.button("Generate Optimization Plan", use_container_width=True, key="cv_btn"):
                     if not api_key:
-                        st.error("Enter Gemini API key.")
+                        st.error("Enter API key.")
                     else:
-                        with st.spinner("Synthesizing tailored recommendations and XYZ bullet rewrites…"):
+                        with st.spinner("Generating XYZ bullet rewrites and keyword recommendations…"):
                             try:
-                                start = time.time()
-                                suggestions = generate_cv_suggestions(
-                                    st.session_state.parsed_profile,
-                                    selected_job_obj,
-                                    api_key=api_key,
-                                    model=model_choice
-                                )
-                                elapsed = round(time.time() - start, 1)
-
-                                st.session_state.cv_suggestions_output = suggestions
-                                st.session_state.total_generated += 1
-                                st.success(f"Generated in {elapsed}s.")
+                                t = time.time()
+                                st.session_state.cv_output = generate_cv_suggestions(st.session_state.parsed_profile, target_job, api_key, model_choice)
+                                st.session_state.total_ops += 1
+                                st.success(f"Generated in {round(time.time()-t,1)}s.")
                             except Exception as e:
-                                st.error(f"Error: {e}")
+                                st.error(str(e))
 
-                if st.session_state.cv_suggestions_output:
-                    output_text = st.session_state.cv_suggestions_output
-                    st.markdown(f'<div class="output-box">{output_text}</div>', unsafe_allow_html=True)
+            with col_r:
+                st.markdown('<div style="font-size:0.78rem;font-weight:700;color:#555;margin-bottom:0.6rem;">Optimization Plan</div>', unsafe_allow_html=True)
+                if st.session_state.cv_output:
+                    st.markdown(f'<div class="output-box">{st.session_state.cv_output}</div>', unsafe_allow_html=True)
                     st.download_button(
-                        "Download Optimization Plan",
-                        data=output_text,
-                        file_name=f"Tailored_{selected_job_obj['title'].replace(' ', '_')}_CV.txt",
+                        "Download Plan (.txt)",
+                        data=st.session_state.cv_output,
+                        file_name=f"CV_Plan_{target_job.get('title','').replace(' ','_')}.txt",
                         mime="text/plain",
                         use_container_width=True,
                     )
                 else:
                     st.markdown("""
-                    <div style="text-align:center; padding:3.5rem 2rem; color:#777777;">
-                        <div style="font-size:0.9rem; font-weight:600;">Optimization Ready</div>
-                        <div style="font-size:0.8rem; margin-top:0.25rem;">Select target position and click Optimize CV.</div>
+                    <div style="text-align:center;padding:5rem 2rem;color:#aaa;border:1.5px dashed rgba(0,0,0,0.1);border-radius:12px;">
+                        <div style="font-size:0.9rem;font-weight:600;color:#888;">Optimization Plan</div>
+                        <div style="font-size:0.8rem;margin-top:0.2rem;">Select a target role and click Generate.</div>
                     </div>
                     """, unsafe_allow_html=True)
 
-    # ──────────────────────────────────────────
-    # STEP 4: CAREER MENTOR
-    # ──────────────────────────────────────────
-    elif "4. Career Mentor" in career_step:
+    # ── STEP 4 ─────────────────────────────────────────────────
+    elif "4" in step:
         st.markdown('<div class="section-header">Career Mentor</div>', unsafe_allow_html=True)
 
-        col_chat_cfg, col_chat_main = st.columns([1, 2.2], gap="large")
+        col_l, col_r = st.columns([0.85, 2], gap="large")
 
-        with col_chat_cfg:
-            st.markdown("**Grounded Context**")
-            profile_ctx = "No profile uploaded"
-            if st.session_state.parsed_profile:
-                p = st.session_state.parsed_profile
-                profile_ctx = f"Candidate: {p.get('name')} | Role: {p.get('target_role')} | Skills: {p.get('skills')}"
-
-            job_ctx = "General Tech Industry"
-            if st.session_state.selected_job:
-                j = st.session_state.selected_job
-                job_ctx = f"Position: {j.get('title')} at {j.get('company')} | Requirements: {j.get('skills_required')}"
+        with col_l:
+            p = st.session_state.parsed_profile
+            j = st.session_state.selected_job
+            profile_ctx = f"Candidate: {p.get('name')} | Role: {p.get('target_role')} | Skills: {json.dumps(p.get('skills',{}))}" if p else "No resume uploaded"
+            job_ctx = f"Target: {j.get('title')} at {j.get('company')} | Required: {j.get('skills', j.get('skills_required', []))}" if j else "General industry"
 
             st.markdown(f"""
-            <div class="sidebar-stat" style="font-size:0.78rem; line-height:1.5;">
-                <strong>Candidate:</strong><br>{profile_ctx[:110]}...<br><br>
-                <strong>Target:</strong><br>{job_ctx[:110]}...
+            <div class="info-panel" style="margin-bottom:0.8rem;">
+                <div class="info-panel-label">Profile Context</div>
+                <div class="info-panel-value">{profile_ctx[:100]}…</div>
+            </div>
+            <div class="info-panel">
+                <div class="info-panel-label">Target Role</div>
+                <div class="info-panel-value">{job_ctx[:100]}…</div>
             </div>
             """, unsafe_allow_html=True)
 
-            st.markdown("**Quick Prompts**")
-            q1 = st.button("Mock Interview Questions", use_container_width=True)
-            q2 = st.button("60-Day Learning Plan", use_container_width=True)
-            q3 = st.button("Draft Cover Letter", use_container_width=True)
-            q4 = st.button("Salary Strategy", use_container_width=True)
+            st.markdown('<div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em;color:#888;margin:0.8rem 0 0.5rem;">Quick Prompts</div>', unsafe_allow_html=True)
 
+            prompts = {
+                "Mock Interview Questions": "Generate 5 challenging interview questions tailored to my resume and target role, with detailed STAR method answer frameworks for each.",
+                "60-Day Learning Plan": "Create a structured 60-day step-by-step learning roadmap with weekly milestones to bridge my skill gaps for this target role.",
+                "Draft Cover Letter": "Write a professional cover letter for this position highlighting my most relevant experience and achievements. Keep it under 300 words.",
+                "Salary Strategy": "Provide a data-driven salary negotiation strategy and script for this role, including market benchmarks and negotiation tactics.",
+            }
             auto_prompt = None
-            if q1:
-                auto_prompt = "Generate 5 interview questions tailored to my resume and target role with STAR method answer frameworks."
-            elif q2:
-                auto_prompt = "Create a structured 60-day step-by-step milestone learning plan to bridge missing skills."
-            elif q3:
-                auto_prompt = "Write a concise cover letter tailored to this position highlighting relevant accomplishments."
-            elif q4:
-                auto_prompt = "Provide a salary negotiation script and benchmark strategy for this role."
+            for label, prompt_text in prompts.items():
+                with st.container():
+                    if st.button(label, use_container_width=True, key=f"qp_{label[:8]}"):
+                        auto_prompt = prompt_text
 
-            if st.button("Reset Conversation", use_container_width=True):
-                st.session_state.mentor_messages = [
-                    {"role": "assistant", "content": "Conversation reset. How can I assist your career progression?"}
-                ]
+            st.markdown("<br>", unsafe_allow_html=True)
+            if st.button("Clear Conversation", use_container_width=True, key="clear_chat", type="secondary"):
+                st.session_state.mentor_messages = [{"role": "assistant", "content": "Conversation cleared. How can I help?"}]
                 st.rerun()
 
-        with col_chat_main:
-            chat_container = st.container()
-            with chat_container:
-                for msg in st.session_state.mentor_messages:
-                    if msg["role"] == "user":
-                        st.markdown(f'<div class="chat-bubble-user">{msg["content"]}</div>', unsafe_allow_html=True)
-                    else:
-                        st.markdown(f'<div class="chat-bubble-ai">{msg["content"]}</div>', unsafe_allow_html=True)
+        with col_r:
+            # Render chat history
+            chat_html = '<div class="chat-wrap">'
+            for msg in st.session_state.mentor_messages:
+                cls = "bubble-user" if msg["role"] == "user" else "bubble-ai"
+                chat_html += f'<div class="{cls}">{msg["content"]}</div>'
+            chat_html += "</div>"
+            st.markdown(chat_html, unsafe_allow_html=True)
 
-            user_input = st.chat_input("Ask a question regarding interview prep, roadmaps, or applications...")
+            user_input = st.chat_input("Ask about interview prep, skill gaps, cover letters, or career strategy…")
             final_input = auto_prompt or user_input
 
             if final_input:
                 if not api_key:
-                    st.error("Enter Gemini API key.")
+                    st.error("Enter API key.")
                 else:
                     st.session_state.mentor_messages.append({"role": "user", "content": final_input})
-                    st.markdown(f'<div class="chat-bubble-user">{final_input}</div>', unsafe_allow_html=True)
-
                     with st.spinner("Thinking…"):
                         try:
-                            start = time.time()
-                            ai_reply = career_mentor_chat(
-                                st.session_state.mentor_messages,
-                                candidate_context=profile_ctx,
-                                job_context=job_ctx,
-                                api_key=api_key,
-                                model=model_choice
-                            )
-                            st.session_state.mentor_messages.append({"role": "assistant", "content": ai_reply})
-                            st.session_state.total_generated += 1
+                            reply = mentor_chat(st.session_state.mentor_messages, profile_ctx, job_ctx, api_key, model_choice)
+                            st.session_state.mentor_messages.append({"role": "assistant", "content": reply})
+                            st.session_state.total_ops += 1
                             st.rerun()
                         except Exception as e:
-                            st.error(f"Error: {e}")
+                            st.error(str(e))
 
 
-# ══════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════
 # TAB 2 — BLOG STUDIO
-# ══════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════
 with tab_blog:
-    col_left, col_right = st.columns([1, 1], gap="large")
+    col_l, col_r = st.columns([1, 1.3], gap="large")
 
-    with col_left:
+    with col_l:
         st.markdown('<div class="section-header">Article Parameters</div>', unsafe_allow_html=True)
 
-        topic = st.text_input(
-            "Topic",
-            placeholder="e.g. Modern Software Architecture Patterns",
-            value="Modern Software Architecture Patterns",
-        )
-
-        tone = st.selectbox(
-            "Tone",
-            options=["professional", "formal", "casual", "analytical", "executive"],
-            index=0,
-        )
-
-        word_count = st.slider(
-            "Target Word Count",
-            min_value=100,
-            max_value=1500,
-            value=350,
-            step=50,
-        )
+        topic = st.text_input("Topic", placeholder="e.g. The Future of AI in Healthcare", value="The Future of AI in Healthcare")
+        tone = st.selectbox("Writing Tone", ["professional", "analytical", "executive", "formal", "conversational"])
+        words = st.slider("Target Word Count", 100, 1500, 400, 50)
 
         st.markdown(f"""
-        <div class="metric-row">
-            <span class="metric-chip">Temperature: 0.7</span>
-            <span class="metric-chip">Length: ~{word_count} words</span>
-            <span class="metric-chip">Tone: {tone}</span>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:-0.2rem 0 0.8rem;">
+            <span class="chip chip-meta">Tone: {tone}</span>
+            <span class="chip chip-meta">~{words} words</span>
+            <span class="chip chip-meta">Temp: 0.7</span>
         </div>
         """, unsafe_allow_html=True)
 
-        generate_blog_btn = st.button("Generate Article", use_container_width=True, key="gen_blog")
-
-    with col_right:
-        st.markdown('<div class="section-header">Generated Article</div>', unsafe_allow_html=True)
-
-        if generate_blog_btn:
-            if not api_key:
-                st.error("Enter Gemini API key.")
-            elif not topic.strip():
-                st.warning("Enter a topic.")
+        if st.button("Generate Article", use_container_width=True, key="gen_blog"):
+            if not api_key: st.error("Enter API key.")
+            elif not topic.strip(): st.warning("Enter a topic.")
             else:
-                with st.spinner("Generating article…"):
+                with st.spinner("Writing article…"):
                     try:
-                        start = time.time()
-                        blog_text = generate_blog(topic, tone, word_count, api_key, model=model_choice)
-                        elapsed = round(time.time() - start, 1)
-
-                        header = f"ARTICLE GENERATOR\nTopic: \"{topic}\"\nTone: {tone}\nTarget Length: {word_count} words\n\n"
-                        full_output = header + blog_text
-
-                        st.session_state.blog_history.append({
-                            "topic": topic,
-                            "tone": tone,
-                            "word_count": word_count,
-                            "output": full_output,
-                        })
-                        st.session_state.total_generated += 1
-
-                        st.success(f"Generated in {elapsed}s.")
-                        st.markdown(f'<div class="output-box">{full_output}</div>', unsafe_allow_html=True)
-                        st.download_button(
-                            "Download Article (.txt)",
-                            data=full_output,
-                            file_name="article_output.txt",
-                            mime="text/plain",
-                            use_container_width=True,
-                        )
+                        t = time.time()
+                        out = generate_blog(topic, tone, words, api_key, model_choice)
+                        header = f"--- ARTICLE ---\nTopic: {topic}\nTone: {tone}\nWords: ~{words}\n\n"
+                        full = header + out
+                        st.session_state.blog_history.append({"topic": topic, "tone": tone, "words": words, "output": full})
+                        st.session_state.total_ops += 1
+                        st.success(f"Generated in {round(time.time()-t,1)}s.")
                     except Exception as e:
-                        st.error(f"Error: {e}")
+                        st.error(str(e))
 
-        elif st.session_state.blog_history:
+    with col_r:
+        st.markdown('<div class="section-header">Generated Article</div>', unsafe_allow_html=True)
+        if st.session_state.blog_history:
             last = st.session_state.blog_history[-1]
             st.markdown(f'<div class="output-box">{last["output"]}</div>', unsafe_allow_html=True)
-            st.download_button(
-                "Download Article (.txt)",
-                data=last["output"],
-                file_name="article_output.txt",
-                mime="text/plain",
-                use_container_width=True,
-            )
+            st.download_button("Download Article (.txt)", data=last["output"], file_name="article.txt", mime="text/plain", use_container_width=True)
         else:
             st.markdown("""
-            <div style="text-align:center; padding:3.5rem 2rem; color:#777777;">
-                <div style="font-size:0.9rem; font-weight:600;">No Article Generated</div>
-                <div style="font-size:0.8rem; margin-top:0.25rem;">Configure parameters and click Generate Article.</div>
+            <div style="text-align:center;padding:5rem 2rem;color:#aaa;border:1.5px dashed rgba(0,0,0,0.1);border-radius:12px;">
+                <div style="font-size:0.9rem;font-weight:600;color:#888;">No article yet</div>
+                <div style="font-size:0.8rem;margin-top:0.2rem;">Configure parameters and click Generate.</div>
             </div>
             """, unsafe_allow_html=True)
 
 
-# ══════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════
 # TAB 3 — EMAIL WRITER
-# ══════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════
 with tab_email:
-    col_left, col_right = st.columns([1, 1], gap="large")
+    col_l, col_r = st.columns([1, 1.3], gap="large")
 
-    with col_left:
+    with col_l:
         st.markdown('<div class="section-header">Email Parameters</div>', unsafe_allow_html=True)
 
-        recipient = st.text_input(
-            "Recipient",
-            placeholder="e.g. Hiring Manager",
-            value="Hiring Manager",
-        )
-
-        purpose = st.selectbox(
-            "Purpose",
-            options=[
-                "Interview Follow-up",
-                "Cold Outreach",
-                "Status Update",
-                "Meeting Request",
-                "Offer Inquiry",
-                "Custom",
-            ],
-            index=0,
-        )
-
+        recipient = st.text_input("Recipient", placeholder="e.g. Hiring Manager, FAANG Corp", value="Hiring Manager")
+        purpose = st.selectbox("Purpose", [
+            "Interview Follow-up", "Cold Outreach", "Thank-You Note",
+            "Meeting Request", "Offer Negotiation", "Status Update", "Custom"
+        ])
         if purpose == "Custom":
-            purpose = st.text_input("Specify Purpose:", placeholder="Describe email objective")
+            purpose = st.text_input("Describe the purpose", placeholder="e.g. Request project extension…")
 
-        email_tone = st.selectbox(
-            "Tone",
-            options=["professional", "formal", "direct", "concise"],
-            index=0,
-        )
+        email_tone = st.selectbox("Tone", ["professional", "formal", "concise", "assertive", "warm"])
 
         st.markdown(f"""
-        <div class="metric-row">
-            <span class="metric-chip">Temperature: 0.3</span>
-            <span class="metric-chip">Tone: {email_tone}</span>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:-0.2rem 0 0.8rem;">
+            <span class="chip chip-meta">Tone: {email_tone}</span>
+            <span class="chip chip-meta">Temp: 0.3</span>
         </div>
         """, unsafe_allow_html=True)
 
-        generate_email_btn = st.button("Compose Email", use_container_width=True, key="gen_email")
-
-    with col_right:
-        st.markdown('<div class="section-header">Generated Email</div>', unsafe_allow_html=True)
-
-        if generate_email_btn:
-            if not api_key:
-                st.error("Enter Gemini API key.")
-            elif not recipient.strip():
-                st.warning("Enter recipient.")
-            elif not purpose or not purpose.strip():
-                st.warning("Enter purpose.")
+        if st.button("Compose Email", use_container_width=True, key="gen_email"):
+            if not api_key: st.error("Enter API key.")
+            elif not recipient.strip(): st.warning("Enter recipient.")
+            elif not purpose or not purpose.strip(): st.warning("Enter purpose.")
             else:
                 with st.spinner("Composing email…"):
                     try:
-                        start = time.time()
-                        email_text = generate_email(recipient, purpose, email_tone, api_key, model=model_choice)
-                        elapsed = round(time.time() - start, 1)
-
-                        header = f"EMAIL COMPOSER\nRecipient: {recipient}\nPurpose: {purpose}\nTone: {email_tone}\n\n"
-                        full_output = header + email_text
-
-                        st.session_state.email_history.append({
-                            "recipient": recipient,
-                            "purpose": purpose,
-                            "tone": email_tone,
-                            "output": full_output,
-                        })
-                        st.session_state.total_generated += 1
-
-                        st.success(f"Generated in {elapsed}s.")
-                        st.markdown(f'<div class="output-box">{full_output}</div>', unsafe_allow_html=True)
-                        st.download_button(
-                            "Download Email (.txt)",
-                            data=full_output,
-                            file_name="email_output.txt",
-                            mime="text/plain",
-                            use_container_width=True,
-                        )
+                        t = time.time()
+                        out = generate_email(recipient, purpose, email_tone, api_key, model_choice)
+                        header = f"--- EMAIL ---\nTo: {recipient}\nPurpose: {purpose}\nTone: {email_tone}\n\n"
+                        full = header + out
+                        st.session_state.email_history.append({"recipient": recipient, "purpose": purpose, "tone": email_tone, "output": full})
+                        st.session_state.total_ops += 1
+                        st.success(f"Generated in {round(time.time()-t,1)}s.")
                     except Exception as e:
-                        st.error(f"Error: {e}")
+                        st.error(str(e))
 
-        elif st.session_state.email_history:
+    with col_r:
+        st.markdown('<div class="section-header">Generated Email</div>', unsafe_allow_html=True)
+        if st.session_state.email_history:
             last = st.session_state.email_history[-1]
             st.markdown(f'<div class="output-box">{last["output"]}</div>', unsafe_allow_html=True)
-            st.download_button(
-                "Download Email (.txt)",
-                data=last["output"],
-                file_name="email_output.txt",
-                mime="text/plain",
-                use_container_width=True,
-            )
+            st.download_button("Download Email (.txt)", data=last["output"], file_name="email.txt", mime="text/plain", use_container_width=True)
         else:
             st.markdown("""
-            <div style="text-align:center; padding:3.5rem 2rem; color:#777777;">
-                <div style="font-size:0.9rem; font-weight:600;">No Email Generated</div>
-                <div style="font-size:0.8rem; margin-top:0.25rem;">Configure parameters and click Compose Email.</div>
+            <div style="text-align:center;padding:5rem 2rem;color:#aaa;border:1.5px dashed rgba(0,0,0,0.1);border-radius:12px;">
+                <div style="font-size:0.9rem;font-weight:600;color:#888;">No email yet</div>
+                <div style="font-size:0.8rem;margin-top:0.2rem;">Configure parameters and click Compose.</div>
             </div>
             """, unsafe_allow_html=True)
 
 
-# ══════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════
 # TAB 4 — RESUME BUILDER
-# ══════════════════════════════════════════════
-with tab_resume_builder:
-    st.markdown('<div class="section-header">Resume Parameters</div>', unsafe_allow_html=True)
+# ══════════════════════════════════════════════════════════════
+with tab_resume:
+    col_l, col_r = st.columns([1, 1.3], gap="large")
 
-    col_form, col_out = st.columns([1, 1], gap="large")
+    with col_l:
+        st.markdown('<div class="section-header">Personal Details</div>', unsafe_allow_html=True)
+        r_name  = st.text_input("Full Name", placeholder="e.g. Kishanraj B", key="r_name")
+        r_title = st.text_input("Target Role", placeholder="e.g. Generative AI Engineer", key="r_title")
+        r_email = st.text_input("Email", placeholder="name@email.com", key="r_email")
+        r_phone = st.text_input("Phone", placeholder="+91 98765 43210", key="r_phone")
+        r_loc   = st.text_input("Location", placeholder="Bengaluru, India", key="r_loc")
 
-    with col_form:
-        st.markdown("**Personal Details**")
-        r_name     = st.text_input("Full Name",          placeholder="e.g. Kishanraj B", key="rb_name")
-        r_title    = st.text_input("Target Role",        placeholder="e.g. AI Engineer", key="rb_title")
-        r_email    = st.text_input("Email",              placeholder="name@email.com", key="rb_email")
-        r_phone    = st.text_input("Phone",              placeholder="+91 98765 43210", key="rb_phone")
-        r_location = st.text_input("Location",           placeholder="Bengaluru, India", key="rb_location")
+        st.markdown('<hr style="margin:0.8rem 0;">', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">Experience & Education</div>', unsafe_allow_html=True)
 
-        st.markdown("---")
-        st.markdown("**Executive Summary Notes**")
-        r_summary = st.text_area(
-            "Summary Notes",
-            placeholder="Brief overview of background and core strengths...",
-            height=80, key="rb_summary"
-        )
+        r_summary = st.text_area("Summary Notes", placeholder="Brief background and strengths…", height=70, key="r_summary")
+        r_exp = st.text_area("Work Experience", placeholder="Company | Role | Dates\n- Achievement with metric\n- Achievement with metric", height=150, key="r_exp")
+        r_edu = st.text_area("Education", placeholder="B.E. Computer Science | VTU | 2024 | CGPA: 8.8", height=65, key="r_edu")
 
-        st.markdown("---")
-        st.markdown("**Work Experience**")
-        r_experience = st.text_area(
-            "Role History",
-            placeholder="Company | Title | Dates\n- Achievement 1\n- Achievement 2",
-            height=150, key="rb_experience"
-        )
+        st.markdown('<hr style="margin:0.8rem 0;">', unsafe_allow_html=True)
+        st.markdown('<div class="section-header">Skills & Extras</div>', unsafe_allow_html=True)
+        r_skills = st.text_area("Skills", placeholder="Python, Gemini API, FastAPI, Docker, React, Machine Learning, Git", height=65, key="r_skills")
 
-        st.markdown("---")
-        st.markdown("**Education**")
-        r_education = st.text_area(
-            "Degrees",
-            placeholder="Degree | Institution | Year",
-            height=65, key="rb_education"
-        )
-
-        st.markdown("---")
-        st.markdown("**Skills**")
-        r_skills = st.text_area(
-            "Skills",
-            placeholder="Python, Gemini API, Docker, FastAPI, Git, Architecture",
-            height=65, key="rb_skills"
-        )
-
-        st.markdown("---")
         with st.expander("Projects & Certifications"):
-            r_projects = st.text_area("Projects", placeholder="Project Name | Description | Stack", height=80, key="rb_projects")
-            r_certifications = st.text_area("Certifications", placeholder="Certificate | Issuer | Year", height=60, key="rb_certs")
+            r_projects = st.text_area("Projects", placeholder="SmartGen AI | AI Career Platform | Python, Streamlit, Gemini", height=80, key="r_proj")
+            r_certs = st.text_area("Certifications", placeholder="Google Cloud Professional ML | 2024", height=55, key="r_certs")
 
         st.markdown(f"""
-        <div class="metric-row" style="margin-top:0.4rem;">
-            <span class="metric-chip">Temperature: 0.2</span>
-            <span class="metric-chip">Format: ATS Structured</span>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin:-0.2rem 0 0.8rem;">
+            <span class="chip chip-meta">ATS Optimized</span>
+            <span class="chip chip-meta">Temp: 0.2</span>
         </div>
         """, unsafe_allow_html=True)
 
-        build_resume_btn = st.button("Generate Resume", use_container_width=True, key="rb_build_btn")
-
-    with col_out:
-        st.markdown('<div class="section-header">Generated Resume</div>', unsafe_allow_html=True)
-
-        if build_resume_btn:
-            if not api_key:
-                st.error("Enter Gemini API key.")
-            elif not r_name.strip():
-                st.warning("Enter name.")
-            elif not r_title.strip():
-                st.warning("Enter target role.")
-            elif not r_experience.strip():
-                st.warning("Enter work experience.")
-            elif not r_skills.strip():
-                st.warning("Enter skills.")
+        if st.button("Generate Resume", use_container_width=True, key="gen_resume"):
+            if not api_key: st.error("Enter API key.")
+            elif not r_name.strip(): st.warning("Enter full name.")
+            elif not r_title.strip(): st.warning("Enter target role.")
+            elif not r_exp.strip(): st.warning("Enter work experience.")
+            elif not r_skills.strip(): st.warning("Enter skills.")
             else:
-                with st.spinner("Building structured resume…"):
+                with st.spinner("Building structured ATS resume…"):
                     try:
-                        start = time.time()
-                        resume_text = generate_resume(
-                            name=r_name, job_title=r_title,
-                            email=r_email, phone=r_phone, location=r_location,
-                            summary=r_summary or "Professional with proven background.",
-                            experience=r_experience, education=r_education or "N/A",
-                            skills=r_skills, projects=r_projects or "None",
-                            certifications=r_certifications or "None",
-                            api_key=api_key, model=model_choice
+                        t = time.time()
+                        out = generate_resume(
+                            r_name, r_title, r_email, r_phone, r_loc,
+                            r_summary or "Professional with strong technical background.",
+                            r_exp, r_edu or "N/A",
+                            r_skills, r_projects or "None", r_certs or "None",
+                            api_key, model_choice
                         )
-                        elapsed = round(time.time() - start, 1)
-
-                        file_name = f"{r_name.replace(' ', '_')}_Resume.txt"
-                        st.session_state.resume_history.append({
-                            "name": r_name,
-                            "title": r_title,
-                            "output": resume_text,
-                            "file": file_name,
-                        })
-                        st.session_state.total_generated += 1
-
-                        st.success(f"Generated in {elapsed}s.")
-                        st.markdown(f'<div class="output-box">{resume_text}</div>', unsafe_allow_html=True)
-                        st.download_button(
-                            "Download Resume (.txt)",
-                            data=resume_text,
-                            file_name=file_name,
-                            mime="text/plain",
-                            use_container_width=True,
-                        )
+                        fname = f"{r_name.replace(' ','_')}_Resume.txt"
+                        st.session_state.resume_history.append({"name": r_name, "title": r_title, "output": out, "file": fname})
+                        st.session_state.total_ops += 1
+                        st.success(f"Generated in {round(time.time()-t,1)}s.")
                     except Exception as e:
-                        st.error(f"Error: {e}")
+                        st.error(str(e))
 
-        elif st.session_state.resume_history:
+    with col_r:
+        st.markdown('<div class="section-header">Generated Resume</div>', unsafe_allow_html=True)
+        if st.session_state.resume_history:
             last = st.session_state.resume_history[-1]
             st.markdown(f'<div class="output-box">{last["output"]}</div>', unsafe_allow_html=True)
-            st.download_button(
-                "Download Resume (.txt)",
-                data=last["output"],
-                file_name=last["file"],
-                mime="text/plain",
-                use_container_width=True,
-            )
+            st.download_button(f"Download {last['file']}", data=last["output"], file_name=last["file"], mime="text/plain", use_container_width=True)
         else:
             st.markdown("""
-            <div style="text-align:center; padding:3.5rem 2rem; color:#777777;">
-                <div style="font-size:0.9rem; font-weight:600;">No Resume Generated</div>
-                <div style="font-size:0.8rem; margin-top:0.25rem;">Complete details and click Generate Resume.</div>
+            <div style="text-align:center;padding:5rem 2rem;color:#aaa;border:1.5px dashed rgba(0,0,0,0.1);border-radius:12px;">
+                <div style="font-size:0.9rem;font-weight:600;color:#888;">No resume yet</div>
+                <div style="font-size:0.8rem;margin-top:0.2rem;">Fill in the form and click Generate.</div>
             </div>
             """, unsafe_allow_html=True)
 
 
-# ══════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════
 # TAB 5 — HISTORY
-# ══════════════════════════════════════════════
+# ══════════════════════════════════════════════════════════════
 with tab_history:
-    col_b, col_e = st.columns(2, gap="large")
+    has_any = st.session_state.blog_history or st.session_state.email_history or st.session_state.resume_history
 
-    with col_b:
-        st.markdown('<div class="section-header">Article Archive</div>', unsafe_allow_html=True)
-        if st.session_state.blog_history:
-            for i, item in enumerate(reversed(st.session_state.blog_history), 1):
-                with st.expander(f"#{len(st.session_state.blog_history)+1-i} — {item['topic'][:45]}"):
-                    st.text(item["output"])
-                    st.download_button("Download", data=item["output"],
-                                       file_name=f"article_{i}.txt", mime="text/plain",
-                                       key=f"dl_blog_{i}")
-        else:
-            st.caption("No articles generated yet.")
+    if not has_any:
+        st.markdown("""
+        <div style="text-align:center;padding:5rem 2rem;color:#aaa;">
+            <div style="font-size:0.9rem;font-weight:600;color:#888;">No history yet</div>
+            <div style="font-size:0.8rem;margin-top:0.2rem;">Generated content will appear here.</div>
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        if st.session_state.blog_history or st.session_state.email_history:
+            col_b, col_e = st.columns(2, gap="large")
 
-    with col_e:
-        st.markdown('<div class="section-header">Email Archive</div>', unsafe_allow_html=True)
-        if st.session_state.email_history:
-            for i, item in enumerate(reversed(st.session_state.email_history), 1):
-                with st.expander(f"#{len(st.session_state.email_history)+1-i} — {item['recipient'][:35]}"):
-                    st.text(item["output"])
-                    st.download_button("Download", data=item["output"],
-                                       file_name=f"email_{i}.txt", mime="text/plain",
-                                       key=f"dl_email_{i}")
-        else:
-            st.caption("No emails generated yet.")
+            with col_b:
+                st.markdown('<div class="section-header">Articles</div>', unsafe_allow_html=True)
+                if st.session_state.blog_history:
+                    for i, item in enumerate(reversed(st.session_state.blog_history), 1):
+                        with st.expander(f"#{len(st.session_state.blog_history)+1-i} — {item['topic'][:40]}"):
+                            st.markdown(f'<div style="display:flex;gap:0.4rem;margin-bottom:0.6rem;"><span class="chip chip-meta">{item["tone"]}</span><span class="chip chip-meta">~{item["words"]} words</span></div>', unsafe_allow_html=True)
+                            st.text(item["output"][:800] + ("…" if len(item["output"]) > 800 else ""))
+                            st.download_button("Download", data=item["output"], file_name=f"article_{i}.txt", mime="text/plain", key=f"dl_b_{i}")
+                else:
+                    st.caption("No articles yet.")
 
-    if st.session_state.resume_history:
-        st.divider()
-        st.markdown('<div class="section-header">Resume Archive</div>', unsafe_allow_html=True)
-        for i, item in enumerate(reversed(st.session_state.resume_history), 1):
-            with st.expander(f"#{len(st.session_state.resume_history)+1-i} — {item['name']} | {item['title'][:35]}"):
-                st.text(item["output"])
-                st.download_button("Download", data=item["output"],
-                                   file_name=item["file"], mime="text/plain",
-                                   key=f"dl_resume_{i}")
+            with col_e:
+                st.markdown('<div class="section-header">Emails</div>', unsafe_allow_html=True)
+                if st.session_state.email_history:
+                    for i, item in enumerate(reversed(st.session_state.email_history), 1):
+                        with st.expander(f"#{len(st.session_state.email_history)+1-i} — {item['recipient'][:30]}"):
+                            st.markdown(f'<div style="display:flex;gap:0.4rem;margin-bottom:0.6rem;"><span class="chip chip-meta">{item["purpose"][:22]}</span><span class="chip chip-meta">{item["tone"]}</span></div>', unsafe_allow_html=True)
+                            st.text(item["output"][:600] + ("…" if len(item["output"]) > 600 else ""))
+                            st.download_button("Download", data=item["output"], file_name=f"email_{i}.txt", mime="text/plain", key=f"dl_e_{i}")
+                else:
+                    st.caption("No emails yet.")
 
-    if st.session_state.blog_history or st.session_state.email_history or st.session_state.resume_history:
-        st.divider()
-        if st.button("Clear Archive", type="secondary"):
-            st.session_state.blog_history  = []
+        if st.session_state.resume_history:
+            st.markdown('<hr style="margin:1rem 0;">', unsafe_allow_html=True)
+            st.markdown('<div class="section-header">Resumes</div>', unsafe_allow_html=True)
+            for i, item in enumerate(reversed(st.session_state.resume_history), 1):
+                with st.expander(f"#{len(st.session_state.resume_history)+1-i} — {item['name']} | {item['title'][:30]}"):
+                    st.text(item["output"][:800] + ("…" if len(item["output"]) > 800 else ""))
+                    st.download_button("Download", data=item["output"], file_name=item["file"], mime="text/plain", key=f"dl_r_{i}")
+
+        st.markdown('<hr style="margin:1.2rem 0;">', unsafe_allow_html=True)
+        if st.button("Clear All History", type="secondary", key="clear_history"):
+            st.session_state.blog_history = []
             st.session_state.email_history = []
             st.session_state.resume_history = []
-            st.session_state.total_generated = 0
+            st.session_state.total_ops = 0
             st.rerun()
