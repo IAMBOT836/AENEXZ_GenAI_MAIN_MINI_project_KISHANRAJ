@@ -65,32 +65,48 @@ h1, h2, h3, h4, h5, h6, p, span, label, div, strong, em, b {
     color: #000000 !important;
 }
 
-/* ── Hero Banner — Minimal Editorial Header ── */
+/* ── Container Layout & Spacing Reset ── */
+.block-container {
+    padding-top: 1.8rem !important;
+    padding-bottom: 2.5rem !important;
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
+    max-width: 1240px !important;
+    margin: 0 auto !important;
+}
+
+section[data-testid="stSidebar"] .block-container {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+}
+
+/* ── Hero Banner — Minimal Header ── */
 .hero-banner {
-    background: rgba(255, 255, 255, 0.85) !important;
-    backdrop-filter: blur(24px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    backdrop-filter: blur(20px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
     border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    border-radius: 20px !important;
-    padding: 2.2rem 2.8rem !important;
-    margin-bottom: 1.8rem !important;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02) !important;
-    position: relative !important;
+    border-radius: 14px !important;
+    padding: 1.2rem 1.6rem !important;
+    margin-bottom: 1rem !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02) !important;
 }
 
 .hero-title {
-    font-size: 2.4rem !important;
+    font-size: 1.8rem !important;
     font-weight: 900 !important;
     color: #000000 !important;
-    letter-spacing: -0.04em !important;
+    letter-spacing: -0.03em !important;
     margin: 0 !important;
     line-height: 1.15 !important;
 }
 
 .hero-subtitle {
-    color: #444444 !important;
-    font-size: 0.98rem !important;
-    margin-top: 0.4rem !important;
+    color: #555555 !important;
+    font-size: 0.9rem !important;
+    margin-top: 0.25rem !important;
     font-weight: 400 !important;
     letter-spacing: -0.01em !important;
 }
@@ -98,56 +114,104 @@ h1, h2, h3, h4, h5, h6, p, span, label, div, strong, em, b {
 /* ── Frosted Glass Cards ── */
 .glass-card {
     background: rgba(255, 255, 255, 0.85) !important;
-    backdrop-filter: blur(20px) saturate(180%) !important;
-    -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
+    backdrop-filter: blur(16px) saturate(180%) !important;
+    -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
     border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    border-radius: 16px !important;
-    padding: 1.6rem !important;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.02) !important;
-    margin-bottom: 1rem !important;
+    border-radius: 12px !important;
+    padding: 1.2rem 1.4rem !important;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.02) !important;
+    margin-bottom: 0.8rem !important;
 }
 
 /* ── Minimalist Glass Tabs ── */
 [data-testid="stTabs"] [role="tablist"] {
-    background: rgba(255, 255, 255, 0.75) !important;
-    backdrop-filter: blur(16px) !important;
-    border-radius: 14px !important;
-    padding: 5px !important;
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(14px) !important;
+    border-radius: 10px !important;
+    padding: 4px !important;
     border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    gap: 6px !important;
+    gap: 4px !important;
+    margin-bottom: 1.2rem !important;
 }
 
 [data-testid="stTabs"] button {
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     font-weight: 700 !important;
-    font-size: 0.88rem !important;
+    font-size: 0.86rem !important;
     color: #555555 !important;
     transition: all 0.2s ease !important;
-    padding: 0.5rem 1.2rem !important;
+    padding: 0.45rem 1.1rem !important;
     border: none !important;
 }
 
 [data-testid="stTabs"] button[aria-selected="true"] {
     background: #000000 !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.16) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14) !important;
 }
 
 [data-testid="stTabs"] button[aria-selected="true"] * {
     color: #ffffff !important;
 }
 
-/* ── Input Fields & Controls ── */
+/* ── Columns & Block Gap ── */
+[data-testid="stHorizontalBlock"] {
+    gap: 1.5rem !important;
+    align-items: flex-start !important;
+}
+
+[data-testid="column"] {
+    min-width: 0 !important;
+}
+
+/* ── Widget Containers & Spacing ── */
+.stTextInput,
+.stSelectbox,
+.stNumberInput,
+.stSlider,
+.stTextArea,
+.stFileUploader {
+    margin-bottom: 0.85rem !important;
+}
+
+label[data-testid="stWidgetLabel"] {
+    min-height: auto !important;
+    margin-bottom: 0.25rem !important;
+}
+
+label[data-testid="stWidgetLabel"] p,
+.stSelectbox label p,
+.stTextInput label p,
+.stNumberInput label p,
+.stSlider label p,
+.stTextArea label p,
+.stRadio label p {
+    color: #000000 !important;
+    font-weight: 700 !important;
+    font-size: 0.86rem !important;
+    margin: 0 !important;
+    letter-spacing: -0.01em !important;
+}
+
+/* ── Radio Buttons Spacing ── */
+[data-testid="stRadio"] > div[role="radiogroup"] {
+    gap: 1rem !important;
+    margin-top: 0.2rem !important;
+    margin-bottom: 0.6rem !important;
+}
+
+/* ── Input Fields ── */
 [data-testid="stTextInput"] input,
 [data-testid="stSelectbox"] select,
 [data-testid="stNumberInput"] input,
 [data-testid="stTextArea"] textarea {
     background: rgba(255, 255, 255, 0.95) !important;
     border: 1px solid rgba(0, 0, 0, 0.14) !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     color: #000000 !important;
     font-family: 'Inter', sans-serif !important;
-    font-size: 0.9rem !important;
+    font-size: 0.88rem !important;
+    padding: 0.5rem 0.75rem !important;
     transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
 }
@@ -160,31 +224,22 @@ h1, h2, h3, h4, h5, h6, p, span, label, div, strong, em, b {
     box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important;
 }
 
-/* ── Labels ── */
-label[data-testid="stWidgetLabel"] p,
-.stSelectbox label p,
-.stTextInput label p,
-.stNumberInput label p,
-.stSlider label p,
-.stTextArea label p,
-.stRadio label p {
-    color: #000000 !important;
-    font-weight: 700 !important;
-    font-size: 0.88rem !important;
-    letter-spacing: -0.01em !important;
+/* ── Buttons ── */
+.stButton {
+    margin-top: 0.2rem !important;
+    margin-bottom: 0.6rem !important;
 }
 
-/* ── Buttons — Solid Black with Clean Hover ── */
 .stButton > button {
     background: #000000 !important;
     color: #ffffff !important;
     border: none !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     font-weight: 700 !important;
-    font-size: 0.92rem !important;
-    padding: 0.65rem 1.8rem !important;
+    font-size: 0.88rem !important;
+    padding: 0.55rem 1.4rem !important;
     transition: all 0.2s ease !important;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.14) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12) !important;
     font-family: 'Inter', sans-serif !important;
     letter-spacing: -0.01em !important;
 }
@@ -196,7 +251,7 @@ label[data-testid="stWidgetLabel"] p,
 .stButton > button:hover {
     background: #222222 !important;
     transform: translateY(-1px) !important;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2) !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18) !important;
 }
 
 .stButton > button:active {
@@ -204,14 +259,20 @@ label[data-testid="stWidgetLabel"] p,
 }
 
 /* ── Download Buttons ── */
+[data-testid="stDownloadButton"] {
+    margin-top: 0.4rem !important;
+    margin-bottom: 0.6rem !important;
+}
+
 [data-testid="stDownloadButton"] button {
     background: rgba(255, 255, 255, 0.95) !important;
     color: #000000 !important;
     border: 1px solid rgba(0, 0, 0, 0.18) !important;
-    border-radius: 10px !important;
+    border-radius: 8px !important;
     font-weight: 700 !important;
-    font-size: 0.88rem !important;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03) !important;
+    font-size: 0.86rem !important;
+    padding: 0.5rem 1.2rem !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02) !important;
 }
 
 [data-testid="stDownloadButton"] button * {
@@ -230,17 +291,19 @@ label[data-testid="stWidgetLabel"] p,
     backdrop-filter: blur(16px) !important;
     -webkit-backdrop-filter: blur(16px) !important;
     border: 1px solid rgba(0, 0, 0, 0.1) !important;
-    border-radius: 14px !important;
-    padding: 1.5rem 1.8rem !important;
+    border-radius: 10px !important;
+    padding: 1.2rem 1.4rem !important;
     font-family: 'JetBrains Mono', monospace !important;
-    font-size: 0.84rem !important;
+    font-size: 0.82rem !important;
     color: #000000 !important;
-    line-height: 1.8 !important;
+    line-height: 1.7 !important;
+    min-height: 280px !important;
     max-height: 520px !important;
     overflow-y: auto !important;
     white-space: pre-wrap !important;
     word-break: break-word !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02) !important;
+    box-shadow: 0 1px 6px rgba(0, 0, 0, 0.02) !important;
+    margin-bottom: 0.6rem !important;
 }
 
 .output-box::-webkit-scrollbar { width: 4px; }
@@ -249,29 +312,29 @@ label[data-testid="stWidgetLabel"] p,
 
 /* ── Section Headers ── */
 .section-header {
-    font-size: 1.1rem !important;
+    font-size: 0.95rem !important;
     font-weight: 800 !important;
     color: #000000 !important;
-    margin-bottom: 1rem !important;
-    padding-bottom: 0.6rem !important;
+    margin: 0 0 0.8rem 0 !important;
+    padding-bottom: 0.4rem !important;
     border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
-    letter-spacing: -0.02em !important;
+    letter-spacing: -0.01em !important;
 }
 
 /* ── Chips / Tags ── */
 .metric-row {
     display: flex !important;
-    gap: 0.4rem !important;
+    gap: 0.35rem !important;
     flex-wrap: wrap !important;
-    margin-bottom: 1rem !important;
+    margin-bottom: 0.7rem !important;
 }
 
 .metric-chip {
     background: rgba(0, 0, 0, 0.04) !important;
     border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    border-radius: 16px !important;
-    padding: 0.25rem 0.75rem !important;
-    font-size: 0.78rem !important;
+    border-radius: 12px !important;
+    padding: 0.2rem 0.65rem !important;
+    font-size: 0.76rem !important;
     color: #000000 !important;
     font-weight: 600 !important;
 }
@@ -280,9 +343,9 @@ label[data-testid="stWidgetLabel"] p,
     background: rgba(0, 0, 0, 0.05) !important;
     border: 1px solid rgba(0, 0, 0, 0.15) !important;
     color: #000000 !important;
-    padding: 0.22rem 0.7rem !important;
-    border-radius: 16px !important;
-    font-size: 0.78rem !important;
+    padding: 0.2rem 0.65rem !important;
+    border-radius: 12px !important;
+    font-size: 0.76rem !important;
     font-weight: 700 !important;
     display: inline-block !important;
     margin: 2px !important;
@@ -292,9 +355,9 @@ label[data-testid="stWidgetLabel"] p,
     background: rgba(220, 38, 38, 0.06) !important;
     border: 1px solid rgba(220, 38, 38, 0.2) !important;
     color: #991b1b !important;
-    padding: 0.22rem 0.7rem !important;
-    border-radius: 16px !important;
-    font-size: 0.78rem !important;
+    padding: 0.2rem 0.65rem !important;
+    border-radius: 12px !important;
+    font-size: 0.76rem !important;
     font-weight: 700 !important;
     display: inline-block !important;
     margin: 2px !important;
@@ -387,17 +450,12 @@ label[data-testid="stWidgetLabel"] p,
     border-radius: 12px !important;
 }
 
-/* ── Alerts ── */
-[data-testid="stAlert"] {
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    border-radius: 12px !important;
-    color: #000000 !important;
+/* ── Divider & Separators ── */
+hr {
+    margin: 1rem 0 !important;
+    border: none !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.07) !important;
 }
-
-/* ── Divider ── */
-hr { border-color: rgba(0, 0, 0, 0.07) !important; }
-[data-testid="stHorizontalBlock"] { gap: 1.2rem !important; }
 </style>
 """, unsafe_allow_html=True)
 
