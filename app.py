@@ -1,9 +1,8 @@
 """
 SmartGen AI — Streamlit App
 ---------------------------
-A premium Streamlit web application that generates blogs and emails
-using the Google Gemini API with custom system instructions,
-temperatures, and formatted outputs.
+Minimalistic glassmorphism UI — white background, black text, frosted glass cards.
+Powered by Google Gemini REST API (gemini-3.5-flash).
 """
 
 import streamlit as st
@@ -15,25 +14,30 @@ import time
 # ─────────────────────────────────────────────
 st.set_page_config(
     page_title="SmartGen AI — Blog & Email Generator",
-    page_icon="✨",
+    page_icon="✦",
     layout="wide",
     initial_sidebar_state="expanded",
 )
 
 # ─────────────────────────────────────────────
-# Custom CSS — Premium Dark Theme
+# Custom CSS — Minimal Glassmorphism (White + Black)
 # ─────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 
-/* ── Root & Background ── */
+/* ── Root ── */
 html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
+    color: #0a0a0a;
 }
 
+/* ── Background — clean white with very subtle grain ── */
 .stApp {
-    background: linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 40%, #0a0a14 100%);
+    background: #f5f5f7;
+    background-image:
+        radial-gradient(ellipse at 20% 10%, rgba(180,200,255,0.18) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 80%, rgba(200,220,255,0.12) 0%, transparent 50%);
     min-height: 100vh;
 }
 
@@ -42,21 +46,29 @@ html, body, [class*="css"] {
 
 /* ── Sidebar ── */
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0d0d1a 0%, #0a0a14 100%);
-    border-right: 1px solid rgba(139, 92, 246, 0.15);
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-right: 1px solid rgba(0, 0, 0, 0.07);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.04);
 }
 
-[data-testid="stSidebar"] .stMarkdown h2 {
-    color: #a78bfa;
+[data-testid="stSidebar"] * {
+    color: #111 !important;
 }
 
-/* ── Hero Banner ── */
+/* ── Hero Banner — glass card ── */
 .hero-banner {
-    background: linear-gradient(135deg, #1e1040 0%, #0f0f2e 40%, #1a0f30 100%);
-    border: 1px solid rgba(139, 92, 246, 0.3);
-    border-radius: 20px;
-    padding: 2.5rem 3rem;
+    background: rgba(255, 255, 255, 0.65);
+    backdrop-filter: blur(32px);
+    -webkit-backdrop-filter: blur(32px);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    border-radius: 24px;
+    padding: 2.8rem 3.2rem;
     margin-bottom: 2rem;
+    box-shadow:
+        0 8px 32px rgba(0, 0, 0, 0.06),
+        0 1px 0 rgba(255,255,255,0.9) inset;
     position: relative;
     overflow: hidden;
 }
@@ -64,71 +76,79 @@ html, body, [class*="css"] {
 .hero-banner::before {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(ellipse at center, rgba(139,92,246,0.08) 0%, transparent 60%);
-    animation: pulse-glow 4s ease-in-out infinite;
-}
-
-@keyframes pulse-glow {
-    0%, 100% { opacity: 0.5; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.05); }
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(60,60,60,0.12), transparent);
 }
 
 .hero-title {
-    font-size: 2.8rem;
+    font-size: 2.6rem;
     font-weight: 800;
-    background: linear-gradient(135deg, #a78bfa, #60a5fa, #f472b6);
+    color: #0a0a0a;
+    letter-spacing: -0.03em;
+    margin: 0;
+    line-height: 1.15;
+}
+
+.hero-title span {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
-    margin: 0;
-    line-height: 1.2;
 }
 
 .hero-subtitle {
-    color: rgba(200, 180, 255, 0.7);
-    font-size: 1.1rem;
-    margin-top: 0.5rem;
+    color: rgba(10, 10, 10, 0.55);
+    font-size: 1.05rem;
+    margin-top: 0.6rem;
     font-weight: 400;
+    letter-spacing: -0.01em;
 }
 
-/* ── Card Containers ── */
-.card {
-    background: rgba(15, 15, 35, 0.8);
-    border: 1px solid rgba(139, 92, 246, 0.2);
-    border-radius: 16px;
+/* ── Glass Cards ── */
+.glass-card {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    border-radius: 20px;
     padding: 2rem;
-    backdrop-filter: blur(20px);
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    box-shadow:
+        0 4px 24px rgba(0, 0, 0, 0.05),
+        0 1px 0 rgba(255,255,255,0.95) inset;
+    transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 
-.card:hover {
-    border-color: rgba(139, 92, 246, 0.4);
-    box-shadow: 0 0 30px rgba(139, 92, 246, 0.1);
+.glass-card:hover {
+    box-shadow:
+        0 8px 40px rgba(0, 0, 0, 0.09),
+        0 1px 0 rgba(255,255,255,0.95) inset;
+    transform: translateY(-1px);
 }
 
 /* ── Tab Styling ── */
 [data-testid="stTabs"] [role="tablist"] {
-    background: rgba(10, 10, 20, 0.8);
-    border-radius: 12px;
-    padding: 4px;
-    border: 1px solid rgba(139, 92, 246, 0.15);
+    background: rgba(255,255,255,0.6);
+    backdrop-filter: blur(16px);
+    border-radius: 14px;
+    padding: 5px;
+    border: 1px solid rgba(0,0,0,0.07);
+    gap: 4px;
 }
 
 [data-testid="stTabs"] button {
-    border-radius: 8px;
-    font-weight: 600;
-    transition: all 0.2s ease;
-    color: rgba(180, 160, 255, 0.7);
+    border-radius: 10px !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    color: rgba(0,0,0,0.45) !important;
+    transition: all 0.2s ease !important;
+    padding: 0.5rem 1.2rem !important;
 }
 
 [data-testid="stTabs"] button[aria-selected="true"] {
-    background: linear-gradient(135deg, #7c3aed, #5b21b6);
-    color: white;
-    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+    background: rgba(255,255,255,0.95) !important;
+    color: #0a0a0a !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08) !important;
 }
 
 /* ── Input Fields ── */
@@ -136,157 +156,190 @@ html, body, [class*="css"] {
 [data-testid="stSelectbox"] select,
 [data-testid="stNumberInput"] input,
 [data-testid="stTextArea"] textarea {
-    background: rgba(20, 15, 40, 0.8) !important;
-    border: 1px solid rgba(139, 92, 246, 0.25) !important;
-    border-radius: 10px !important;
-    color: #e2d9f3 !important;
+    background: rgba(255,255,255,0.8) !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+    border-radius: 12px !important;
+    color: #0a0a0a !important;
     font-family: 'Inter', sans-serif !important;
-    transition: border-color 0.2s ease !important;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04) !important;
 }
 
 [data-testid="stTextInput"] input:focus,
 [data-testid="stSelectbox"] select:focus,
 [data-testid="stNumberInput"] input:focus,
 [data-testid="stTextArea"] textarea:focus {
-    border-color: rgba(139, 92, 246, 0.6) !important;
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15) !important;
+    border-color: rgba(0,0,0,0.3) !important;
+    box-shadow: 0 0 0 3px rgba(0,0,0,0.06) !important;
 }
 
 /* ── Labels ── */
 label[data-testid="stWidgetLabel"] p,
-.stSelectbox label,
-.stTextInput label,
-.stNumberInput label {
-    color: #c4b5fd !important;
-    font-weight: 500;
-    font-size: 0.9rem;
+.stSelectbox label p,
+.stTextInput label p,
+.stNumberInput label p,
+.stSlider label p {
+    color: #111111 !important;
+    font-weight: 500 !important;
+    font-size: 0.88rem !important;
+    letter-spacing: -0.01em !important;
 }
 
-/* ── Primary Button ── */
-.stButton > button[kind="primary"],
+/* ── Buttons ── */
 .stButton > button {
-    background: linear-gradient(135deg, #7c3aed, #5b21b6) !important;
-    color: white !important;
+    background: #0a0a0a !important;
+    color: #ffffff !important;
     border: none !important;
-    border-radius: 10px !important;
+    border-radius: 12px !important;
     font-weight: 600 !important;
-    font-size: 1rem !important;
-    padding: 0.6rem 2rem !important;
-    transition: all 0.3s ease !important;
-    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3) !important;
+    font-size: 0.95rem !important;
+    padding: 0.65rem 2rem !important;
+    transition: all 0.25s ease !important;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18) !important;
     font-family: 'Inter', sans-serif !important;
+    letter-spacing: -0.01em !important;
 }
 
 .stButton > button:hover {
+    background: #1a1a1a !important;
     transform: translateY(-2px) !important;
-    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.5) !important;
-    background: linear-gradient(135deg, #8b5cf6, #7c3aed) !important;
+    box-shadow: 0 8px 28px rgba(0,0,0,0.25) !important;
 }
 
 .stButton > button:active {
     transform: translateY(0) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15) !important;
+}
+
+/* ── Download button — outlined ── */
+[data-testid="stDownloadButton"] button {
+    background: rgba(255,255,255,0.8) !important;
+    color: #0a0a0a !important;
+    border: 1px solid rgba(0,0,0,0.15) !important;
+    border-radius: 12px !important;
+    font-weight: 500 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05) !important;
+}
+
+[data-testid="stDownloadButton"] button:hover {
+    background: rgba(255,255,255,1) !important;
+    border-color: rgba(0,0,0,0.3) !important;
+    transform: translateY(-1px) !important;
 }
 
 /* ── Output Area ── */
 .output-box {
-    background: rgba(8, 8, 20, 0.9);
-    border: 1px solid rgba(139, 92, 246, 0.25);
-    border-radius: 12px;
-    padding: 1.5rem;
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(0,0,0,0.08);
+    border-radius: 16px;
+    padding: 1.5rem 1.8rem;
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
-    color: #d4c5ff;
-    line-height: 1.7;
+    font-size: 0.84rem;
+    color: #1a1a1a;
+    line-height: 1.75;
     max-height: 500px;
     overflow-y: auto;
     white-space: pre-wrap;
     word-break: break-word;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.05);
 }
 
-.output-box::-webkit-scrollbar {
-    width: 6px;
-}
+.output-box::-webkit-scrollbar { width: 5px; }
 .output-box::-webkit-scrollbar-track {
-    background: rgba(15, 15, 35, 0.5);
+    background: rgba(0,0,0,0.03);
     border-radius: 3px;
 }
 .output-box::-webkit-scrollbar-thumb {
-    background: rgba(139, 92, 246, 0.5);
+    background: rgba(0,0,0,0.15);
     border-radius: 3px;
 }
 
-/* ── Metric Cards ── */
+/* ── Chips / Tags ── */
 .metric-row {
     display: flex;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.4rem;
 }
 
 .metric-chip {
-    background: rgba(139, 92, 246, 0.1);
-    border: 1px solid rgba(139, 92, 246, 0.25);
+    background: rgba(0,0,0,0.05);
+    border: 1px solid rgba(0,0,0,0.08);
     border-radius: 20px;
-    padding: 0.3rem 0.9rem;
-    font-size: 0.8rem;
-    color: #c4b5fd;
+    padding: 0.28rem 0.85rem;
+    font-size: 0.78rem;
+    color: #333;
     font-weight: 500;
+    letter-spacing: -0.01em;
 }
 
 /* ── Section Headers ── */
 .section-header {
-    font-size: 1.15rem;
+    font-size: 1.05rem;
     font-weight: 700;
-    color: #a78bfa;
+    color: #0a0a0a;
     display: flex;
     align-items: center;
     gap: 0.5rem;
     margin-bottom: 1.2rem;
-    padding-bottom: 0.6rem;
-    border-bottom: 1px solid rgba(139, 92, 246, 0.15);
+    padding-bottom: 0.7rem;
+    border-bottom: 1px solid rgba(0,0,0,0.07);
+    letter-spacing: -0.02em;
 }
 
-/* ── Status badges ── */
+/* ── Badges ── */
 .badge-success {
-    background: rgba(16, 185, 129, 0.15);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    color: #34d399;
-    padding: 0.2rem 0.7rem;
+    background: rgba(34,197,94,0.1);
+    border: 1px solid rgba(34,197,94,0.25);
+    color: #15803d;
+    padding: 0.25rem 0.8rem;
     border-radius: 20px;
     font-size: 0.8rem;
     font-weight: 600;
+    display: inline-block;
 }
 
-.badge-ai {
-    background: rgba(99, 102, 241, 0.15);
-    border: 1px solid rgba(99, 102, 241, 0.3);
-    color: #818cf8;
-    padding: 0.2rem 0.7rem;
-    border-radius: 20px;
-    font-size: 0.8rem;
-    font-weight: 600;
-}
-
-/* ── Sidebar items ── */
+/* ── Sidebar stat boxes ── */
 .sidebar-stat {
-    background: rgba(139, 92, 246, 0.08);
-    border: 1px solid rgba(139, 92, 246, 0.15);
+    background: rgba(0,0,0,0.04);
+    border: 1px solid rgba(0,0,0,0.07);
     border-radius: 10px;
-    padding: 0.8rem 1rem;
-    margin-bottom: 0.5rem;
-    color: #c4b5fd;
-    font-size: 0.9rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.4rem;
+    color: #111;
+    font-size: 0.88rem;
+    font-weight: 500;
 }
 
-/* ── Slider ── */
-[data-testid="stSlider"] .st-cc,
-[data-testid="stSlider"] .st-cd {
-    background: rgba(139, 92, 246, 0.3);
+/* ── Divider ── */
+hr { border-color: rgba(0,0,0,0.07) !important; }
+
+/* ── Slider track ── */
+[data-testid="stSlider"] > div > div > div {
+    background: rgba(0,0,0,0.12) !important;
 }
 
-/* ── Streamlit columns ── */
-[data-testid="stHorizontalBlock"] {
-    gap: 1.2rem;
+/* ── Alert / Info boxes ── */
+[data-testid="stAlert"] {
+    border-radius: 12px !important;
+    border: 1px solid rgba(0,0,0,0.07) !important;
+    background: rgba(255,255,255,0.7) !important;
+    color: #111 !important;
 }
+
+/* ── Expander ── */
+[data-testid="stExpander"] {
+    background: rgba(255,255,255,0.55) !important;
+    backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(0,0,0,0.07) !important;
+    border-radius: 14px !important;
+}
+
+/* ── Streamlit columns gap ── */
+[data-testid="stHorizontalBlock"] { gap: 1.4rem; }
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -399,19 +452,16 @@ if "total_generated" not in st.session_state:
 # ─────────────────────────────────────────────
 with st.sidebar:
     st.markdown("""
-    <div style="text-align:center; padding: 1rem 0 1.5rem;">
-        <div style="font-size:2.5rem;">✨</div>
-        <div style="font-size:1.2rem; font-weight:800; 
-             background: linear-gradient(135deg, #a78bfa, #60a5fa);
-             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-             background-clip: text;">SmartGen AI</div>
-        <div style="color:rgba(180,160,255,0.5); font-size:0.75rem; margin-top:0.2rem;">
+    <div style="text-align:center; padding:1.2rem 0 1.8rem;">
+        <div style="font-size:2rem; margin-bottom:0.4rem;">✦</div>
+        <div style="font-size:1.25rem; font-weight:800; color:#0a0a0a; letter-spacing:-0.03em;">SmartGen AI</div>
+        <div style="color:rgba(0,0,0,0.4); font-size:0.75rem; margin-top:0.25rem; font-weight:500;">
             Powered by Google Gemini
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("### 🔑 API Configuration")
+    st.markdown("**🔑 API Configuration**")
     default_key = ""
     try:
         if "GEMINI_API_KEY" in st.secrets:
@@ -427,40 +477,41 @@ with st.sidebar:
         "Gemini API Key",
         type="password",
         value=default_key,
-        placeholder="Enter your Gemini API Key (AIzaSy...)...",
-        help="Get your free API key at https://aistudio.google.com/app/apikey",
+        placeholder="Paste your API key here…",
+        help="Get your free key at https://aistudio.google.com/apikey",
     )
 
     model_choice = st.selectbox(
-        "Gemini Model",
+        "Model",
         options=["gemini-3.5-flash", "gemini-3.1-flash-lite", "gemini-flash-latest", "gemini-3.7-flash"],
         index=0,
-        help="Model used for content generation. Default is gemini-3.5-flash.",
+        help="Default: gemini-3.5-flash (fastest & most capable for new keys)",
     )
 
     if api_key:
-        st.markdown('<div class="badge-success">✓ API Key configured</div>', unsafe_allow_html=True)
+        st.markdown('<div class="badge-success">✓ API Key ready</div>', unsafe_allow_html=True)
     else:
-        st.warning("⚠️ Enter your API Key to generate content.")
+        st.warning("⚠️ Enter your API Key to start generating.")
 
     st.divider()
-    st.markdown("### 📊 Session Stats")
+
+    st.markdown("**📊 Session Stats**")
     st.markdown(f"""
-    <div class="sidebar-stat">📝 Blogs Generated: <strong>{len(st.session_state.blog_history)}</strong></div>
-    <div class="sidebar-stat">📧 Emails Generated: <strong>{len(st.session_state.email_history)}</strong></div>
-    <div class="sidebar-stat">🎯 Total Outputs: <strong>{st.session_state.total_generated}</strong></div>
+    <div class="sidebar-stat">📝 Blogs &nbsp;&nbsp; <strong>{len(st.session_state.blog_history)}</strong></div>
+    <div class="sidebar-stat">📧 Emails &nbsp;&nbsp; <strong>{len(st.session_state.email_history)}</strong></div>
+    <div class="sidebar-stat">🎯 Total &nbsp;&nbsp;&nbsp; <strong>{st.session_state.total_generated}</strong></div>
     """, unsafe_allow_html=True)
 
     st.divider()
-    st.markdown("### ℹ️ About")
+
     st.markdown("""
-    <div style="color:rgba(180,160,255,0.6); font-size:0.82rem; line-height:1.6;">
-    SmartGen AI uses Google's Gemini models to create premium content.<br><br>
-    🌡️ <strong style="color:#c4b5fd;">Blog temp:</strong> 0.7 (creative)<br>
-    🌡️ <strong style="color:#c4b5fd;">Email temp:</strong> 0.3 (precise)<br><br>
-    <a href="https://aistudio.google.com/app/apikey" target="_blank" 
-       style="color:#a78bfa; text-decoration:none;">
-       🔗 Get your free API key
+    <div style="color:rgba(0,0,0,0.45); font-size:0.8rem; line-height:1.7;">
+    SmartGen AI uses Google Gemini to create content.<br><br>
+    🌡 <strong style="color:#111;">Blog temp:</strong> 0.7 — creative<br>
+    🌡 <strong style="color:#111;">Email temp:</strong> 0.3 — precise<br><br>
+    <a href="https://aistudio.google.com/apikey" target="_blank"
+       style="color:#0a0a0a; font-weight:600; text-decoration:none;">
+       → Get your free API key
     </a>
     </div>
     """, unsafe_allow_html=True)
@@ -471,17 +522,17 @@ with st.sidebar:
 # ─────────────────────────────────────────────
 st.markdown("""
 <div class="hero-banner">
-    <div class="hero-title">✨ SmartGen AI</div>
+    <div class="hero-title"><span>✦ SmartGen AI</span></div>
     <div class="hero-subtitle">
-        Generate stunning blogs & professional emails powered by Google Gemini — 
-        your intelligent content co-pilot.
+        Generate blogs &amp; professional emails with Google Gemini —
+        your minimalist content co-pilot.
     </div>
-    <div style="margin-top:1rem; display:flex; gap:0.6rem; flex-wrap:wrap;">
+    <div style="margin-top:1.2rem; display:flex; gap:0.5rem; flex-wrap:wrap;">
         <span class="metric-chip">🤖 Gemini 3.5 Flash</span>
         <span class="metric-chip">📝 Blog Generator</span>
         <span class="metric-chip">📧 Email Writer</span>
-        <span class="metric-chip">⚡ Real-time Generation</span>
-        <span class="metric-chip">💾 Download Outputs</span>
+        <span class="metric-chip">⚡ Real-time</span>
+        <span class="metric-chip">💾 Download</span>
     </div>
 </div>
 """, unsafe_allow_html=True)
@@ -527,13 +578,13 @@ with tab_blog:
 
         st.markdown(f"""
         <div class="metric-row">
-            <span class="metric-chip">🌡️ Temperature: 0.7</span>
+            <span class="metric-chip">🌡 Temp: 0.7</span>
             <span class="metric-chip">📏 ~{word_count} words</span>
-            <span class="metric-chip">🎨 {tone} tone</span>
+            <span class="metric-chip">🎨 {tone}</span>
         </div>
         """, unsafe_allow_html=True)
 
-        generate_blog_btn = st.button("✨ Generate Blog Post", use_container_width=True, key="gen_blog")
+        generate_blog_btn = st.button("✦ Generate Blog Post", use_container_width=True, key="gen_blog")
 
     with col_right:
         st.markdown('<div class="section-header">📄 Generated Blog</div>', unsafe_allow_html=True)
@@ -544,7 +595,7 @@ with tab_blog:
             elif not topic.strip():
                 st.warning("⚠️ Please enter a blog topic.")
             else:
-                with st.spinner("🤖 Gemini is crafting your blog post..."):
+                with st.spinner("Generating your blog post…"):
                     try:
                         start = time.time()
                         blog_text = generate_blog(topic, tone, word_count, api_key, model=model_choice)
@@ -561,25 +612,23 @@ with tab_blog:
                         })
                         st.session_state.total_generated += 1
 
-                        st.success(f"✅ Generated in {elapsed}s")
+                        st.success(f"✓ Generated in {elapsed}s")
                         st.markdown(f'<div class="output-box">{full_output}</div>', unsafe_allow_html=True)
-
-                        # Download button
                         st.download_button(
-                            "⬇️ Download blog_output.txt",
+                            "⬇ Download blog_output.txt",
                             data=full_output,
                             file_name="blog_output.txt",
                             mime="text/plain",
                             use_container_width=True,
                         )
                     except Exception as e:
-                        st.error(f"❌ Error: {e}")
+                        st.error(f"❌ {e}")
 
         elif st.session_state.blog_history:
             last = st.session_state.blog_history[-1]
             st.markdown(f'<div class="output-box">{last["output"]}</div>', unsafe_allow_html=True)
             st.download_button(
-                "⬇️ Download blog_output.txt",
+                "⬇ Download blog_output.txt",
                 data=last["output"],
                 file_name="blog_output.txt",
                 mime="text/plain",
@@ -587,10 +636,10 @@ with tab_blog:
             )
         else:
             st.markdown("""
-            <div style="text-align:center; padding:3rem; color:rgba(180,160,255,0.35);">
-                <div style="font-size:3rem;">📝</div>
-                <div style="margin-top:0.5rem; font-size:0.95rem;">
-                    Configure your blog and click <strong>Generate</strong>
+            <div style="text-align:center; padding:3.5rem 2rem; color:rgba(0,0,0,0.25);">
+                <div style="font-size:2.5rem; margin-bottom:0.6rem;">📝</div>
+                <div style="font-size:0.9rem; font-weight:500;">
+                    Configure and click <strong style="color:rgba(0,0,0,0.4);">Generate</strong>
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -621,12 +670,12 @@ with tab_email:
                 "Leave request",
                 "Project update",
                 "Meeting request",
-                "Custom...",
+                "Custom…",
             ],
             index=0,
         )
 
-        if purpose == "Custom...":
+        if purpose == "Custom…":
             purpose = st.text_input("Describe the email purpose:", placeholder="e.g. Requesting project extension")
 
         email_tone = st.selectbox(
@@ -637,12 +686,12 @@ with tab_email:
 
         st.markdown(f"""
         <div class="metric-row">
-            <span class="metric-chip">🌡️ Temperature: 0.3</span>
-            <span class="metric-chip">✍️ {email_tone} tone</span>
+            <span class="metric-chip">🌡 Temp: 0.3</span>
+            <span class="metric-chip">✍ {email_tone}</span>
         </div>
         """, unsafe_allow_html=True)
 
-        generate_email_btn = st.button("✨ Generate Email", use_container_width=True, key="gen_email")
+        generate_email_btn = st.button("✦ Generate Email", use_container_width=True, key="gen_email")
 
     with col_right:
         st.markdown('<div class="section-header">📄 Generated Email</div>', unsafe_allow_html=True)
@@ -655,7 +704,7 @@ with tab_email:
             elif not purpose or not purpose.strip():
                 st.warning("⚠️ Please describe the email purpose.")
             else:
-                with st.spinner("🤖 Gemini is composing your email..."):
+                with st.spinner("Composing your email…"):
                     try:
                         start = time.time()
                         email_text = generate_email(recipient, purpose, email_tone, api_key, model=model_choice)
@@ -672,24 +721,23 @@ with tab_email:
                         })
                         st.session_state.total_generated += 1
 
-                        st.success(f"✅ Generated in {elapsed}s")
+                        st.success(f"✓ Generated in {elapsed}s")
                         st.markdown(f'<div class="output-box">{full_output}</div>', unsafe_allow_html=True)
-
                         st.download_button(
-                            "⬇️ Download email_output.txt",
+                            "⬇ Download email_output.txt",
                             data=full_output,
                             file_name="email_output.txt",
                             mime="text/plain",
                             use_container_width=True,
                         )
                     except Exception as e:
-                        st.error(f"❌ Error: {e}")
+                        st.error(f"❌ {e}")
 
         elif st.session_state.email_history:
             last = st.session_state.email_history[-1]
             st.markdown(f'<div class="output-box">{last["output"]}</div>', unsafe_allow_html=True)
             st.download_button(
-                "⬇️ Download email_output.txt",
+                "⬇ Download email_output.txt",
                 data=last["output"],
                 file_name="email_output.txt",
                 mime="text/plain",
@@ -697,10 +745,10 @@ with tab_email:
             )
         else:
             st.markdown("""
-            <div style="text-align:center; padding:3rem; color:rgba(180,160,255,0.35);">
-                <div style="font-size:3rem;">📧</div>
-                <div style="margin-top:0.5rem; font-size:0.95rem;">
-                    Configure your email and click <strong>Generate</strong>
+            <div style="text-align:center; padding:3.5rem 2rem; color:rgba(0,0,0,0.25);">
+                <div style="font-size:2.5rem; margin-bottom:0.6rem;">📧</div>
+                <div style="font-size:0.9rem; font-weight:500;">
+                    Configure and click <strong style="color:rgba(0,0,0,0.4);">Generate</strong>
                 </div>
             </div>
             """, unsafe_allow_html=True)
@@ -716,7 +764,7 @@ with tab_history:
         st.markdown('<div class="section-header">📝 Blog History</div>', unsafe_allow_html=True)
         if st.session_state.blog_history:
             for i, item in enumerate(reversed(st.session_state.blog_history), 1):
-                with st.expander(f"#{len(st.session_state.blog_history)+1-i} — {item['topic'][:40]}..."):
+                with st.expander(f"#{len(st.session_state.blog_history)+1-i} — {item['topic'][:45]}"):
                     st.markdown(f"""
                     <div class="metric-row">
                         <span class="metric-chip">🎨 {item['tone']}</span>
@@ -725,14 +773,14 @@ with tab_history:
                     """, unsafe_allow_html=True)
                     st.text(item["output"])
                     st.download_button(
-                        f"⬇️ Download",
+                        "⬇ Download",
                         data=item["output"],
                         file_name=f"blog_{i}.txt",
                         mime="text/plain",
                         key=f"dl_blog_{i}"
                     )
         else:
-            st.info("No blogs generated yet. Head to the Blog Generator tab!")
+            st.info("No blogs generated yet.")
 
     with col_e:
         st.markdown('<div class="section-header">📧 Email History</div>', unsafe_allow_html=True)
@@ -742,23 +790,23 @@ with tab_history:
                     st.markdown(f"""
                     <div class="metric-row">
                         <span class="metric-chip">🎯 {item['purpose'][:25]}</span>
-                        <span class="metric-chip">✍️ {item['tone']}</span>
+                        <span class="metric-chip">✍ {item['tone']}</span>
                     </div>
                     """, unsafe_allow_html=True)
                     st.text(item["output"])
                     st.download_button(
-                        f"⬇️ Download",
+                        "⬇ Download",
                         data=item["output"],
                         file_name=f"email_{i}.txt",
                         mime="text/plain",
                         key=f"dl_email_{i}"
                     )
         else:
-            st.info("No emails generated yet. Head to the Email Writer tab!")
+            st.info("No emails generated yet.")
 
     if st.session_state.blog_history or st.session_state.email_history:
         st.divider()
-        if st.button("🗑️ Clear All History", type="secondary"):
+        if st.button("🗑 Clear All History", type="secondary"):
             st.session_state.blog_history = []
             st.session_state.email_history = []
             st.session_state.total_generated = 0
