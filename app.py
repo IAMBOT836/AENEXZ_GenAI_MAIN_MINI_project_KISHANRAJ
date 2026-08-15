@@ -123,35 +123,76 @@ section[data-testid="stSidebar"] .block-container {
     margin-bottom: 0.8rem !important;
 }
 
-/* ── Minimalist Glass Tabs ── */
-[data-testid="stTabs"] [role="tablist"] {
-    background: rgba(255, 255, 255, 0.8) !important;
-    backdrop-filter: blur(14px) !important;
-    border-radius: 10px !important;
-    padding: 4px !important;
+/* ── Minimalist Pill Tabs ── */
+[data-testid="stTabs"] {
+    margin-top: 0.4rem !important;
+}
+
+[data-testid="stTabs"] [data-baseweb="tab-list"],
+[data-testid="stTabs"] [role="tablist"],
+.stTabs [data-baseweb="tab-list"] {
+    background: rgba(0, 0, 0, 0.03) !important;
     border: 1px solid rgba(0, 0, 0, 0.08) !important;
-    gap: 4px !important;
-    margin-bottom: 1.2rem !important;
+    border-radius: 12px !important;
+    padding: 6px !important;
+    gap: 8px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    margin-bottom: 1.4rem !important;
+    width: 100% !important;
 }
 
-[data-testid="stTabs"] button {
+[data-testid="stTabs"] [data-baseweb="tab-highlight"],
+[data-testid="stTabs"] [data-baseweb="tab-border"],
+.stTabs [data-baseweb="tab-highlight"],
+.stTabs [data-baseweb="tab-border"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+[data-testid="stTabs"] [data-baseweb="tab"],
+[data-testid="stTabs"] button[role="tab"],
+.stTabs button[data-baseweb="tab"] {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
     border-radius: 8px !important;
-    font-weight: 700 !important;
-    font-size: 0.86rem !important;
-    color: #555555 !important;
+    padding: 0.55rem 1.3rem !important;
+    margin: 0 !important;
+    color: #333333 !important;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
     transition: all 0.2s ease !important;
-    padding: 0.45rem 1.1rem !important;
-    border: none !important;
+    cursor: pointer !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02) !important;
 }
 
-[data-testid="stTabs"] button[aria-selected="true"] {
+[data-testid="stTabs"] [data-baseweb="tab"]:hover,
+[data-testid="stTabs"] button[role="tab"]:hover,
+.stTabs button[data-baseweb="tab"]:hover {
+    background: #ffffff !important;
+    border-color: rgba(0, 0, 0, 0.2) !important;
+    color: #000000 !important;
+}
+
+[data-testid="stTabs"] [data-baseweb="tab"][aria-selected="true"],
+[data-testid="stTabs"] button[role="tab"][aria-selected="true"],
+.stTabs button[data-baseweb="tab"][aria-selected="true"] {
     background: #000000 !important;
+    border-color: #000000 !important;
     color: #ffffff !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14) !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.16) !important;
+    font-weight: 700 !important;
 }
 
-[data-testid="stTabs"] button[aria-selected="true"] * {
+[data-testid="stTabs"] [data-baseweb="tab"][aria-selected="true"] *,
+[data-testid="stTabs"] button[role="tab"][aria-selected="true"] *,
+.stTabs button[data-baseweb="tab"][aria-selected="true"] * {
     color: #ffffff !important;
+}
+
+[data-testid="stTabs"] [data-baseweb="tab"] *,
+.stTabs button[data-baseweb="tab"] * {
+    font-size: 0.88rem !important;
 }
 
 /* ── Columns & Block Gap ── */
