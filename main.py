@@ -25,8 +25,9 @@ def get_api_key() -> str:
     """
     # 1. Try Google Colab Secrets (Standard pattern in Colab)
     try:
-        from google.colab import userdata
-        key = userdata.get('GEMINI_API_KEY') or userdata.get('GOOGLE_API_KEY')
+        import importlib
+        colab_userdata = importlib.import_module("google.colab.userdata")
+        key = colab_userdata.get('GEMINI_API_KEY') or colab_userdata.get('GOOGLE_API_KEY')
         if key:
             return key
     except Exception:
